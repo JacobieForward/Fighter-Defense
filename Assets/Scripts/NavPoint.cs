@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class NavPoint : MonoBehaviour {
-    private Renderer objectRenderer;
-    private Vector3 screenPosition;
-    public string text;
+    // Navpoints are each individual objects that operate like a linked list
+    // Each navpoint points to the next in the chain
 
-    void Start() {
-        objectRenderer = GetComponent<Renderer>();
-    }
+    public GameObject nextNavPoint;
 
-    void OnGUI() {
-        if (objectRenderer.isVisible) {
-            screenPosition = Manager.instance.mainCam.WorldToScreenPoint(transform.position);
-            Vector2 textSize = GUI.skin.label.CalcSize(new GUIContent(text));
-            GUI.Label(new Rect(screenPosition.x, Screen.height - screenPosition.y, textSize.x, textSize.y), text);
+    void OnCollisionEnter2D(Collision2D other) {
+        if (other.gameObject.tag == "Player") {
+            Debug.Log("Navpoint Switched.");
+            // Set next navpoint
+            Manager.instance.currentNavPoint = nextNavPoint;
+            // Display messages
+
+            // Destroy this navpoint
+            Destroy(this);
         }
     }
 }

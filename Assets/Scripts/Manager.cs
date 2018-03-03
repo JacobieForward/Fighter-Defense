@@ -12,6 +12,7 @@ public class Manager : MonoBehaviour {
     public GameObject player;
     private GameObject navigationArrow;
     public Camera mainCam;
+    public Camera minimapCam;
     public GameObject starPrefab;
 
     private Vector3 storedPlayerPosition;
@@ -21,7 +22,7 @@ public class Manager : MonoBehaviour {
     private Vector2 onScreenPos;
     private Vector3 cameraOffset;
 
-    public NavPoint currentNavPoint;
+    public GameObject currentNavPoint;
     public GameObject currentRespawnPoint;
     public GameObject playerPrefab;
 
@@ -50,7 +51,8 @@ public class Manager : MonoBehaviour {
         playerScript = player.GetComponent<Player>();
         navigationArrow = GameObject.Find("Navigation Arrow");
         mainCam = GameObject.Find("MainCamera").GetComponent<Camera>();
-        currentNavPoint = GameObject.Find("BlackBoxNav").GetComponent<NavPoint> ();
+        minimapCam = GameObject.Find("MinimapCamera").GetComponent<Camera>();
+        currentNavPoint = GameObject.Find("BlackBoxNav");
         healthSlider = GameObject.Find("HealthSlider").GetComponent<Slider>();
         energySlider = GameObject.Find("EnergySlider").GetComponent<Slider>();
         cameraOffset = new Vector3(0, 0, -2);
@@ -59,11 +61,12 @@ public class Manager : MonoBehaviour {
 
     void Update() {
         playtime += Time.deltaTime;
-
+        
         // This causes the camera to follow the player and handles respawn behavior
         if (player != null)
         {
             mainCam.transform.position = player.transform.position + cameraOffset;
+            minimapCam.transform.position = player.transform.position + cameraOffset;
 
             // This section controls the stars spawning in the player's path
             if ((storedPlayerPosition != player.transform.position || storedPlayerRotation != player.transform.rotation))
@@ -95,6 +98,7 @@ public class Manager : MonoBehaviour {
         else
         {
             mainCam.transform.position = currentRespawnPoint.transform.position + cameraOffset;
+            minimapCam.transform.position = currentRespawnPoint.transform.position + cameraOffset;
             respawnTimer += Time.deltaTime;
 
 

@@ -14,7 +14,7 @@ public class Player : MonoBehaviour {
     public float thrustSpeed;
     public GameObject projectile;
 
-    public GameObject failureText;
+    private Rigidbody2D rigidbody;
 
     private void Start()
     {
@@ -22,6 +22,8 @@ public class Player : MonoBehaviour {
         maxEnergy = 50;
         health = maxHealth;
         energy = maxEnergy;
+
+        rigidbody = GetComponent<Rigidbody2D>();
     }
 
     void FixedUpdate() {
@@ -35,6 +37,15 @@ public class Player : MonoBehaviour {
 
         transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
         transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+
+        /*EXPERIMENTAL
+         * float inputHorizontal = Input.GetAxis("Horizontal");
+
+        transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+
+        if (Input.GetKeyDown("w")) {
+            rigidbody.AddForce(transform.up * thrustSpeed);
+        }*/
 
         if (Input.GetKeyDown("space") && energy > 0) {
             //Fire the player's primary weapon
