@@ -14,7 +14,7 @@ public class Player : MonoBehaviour {
     public float thrustSpeed;
     public GameObject projectile;
 
-    private Rigidbody2D rigidbody;
+    private Rigidbody2D rigidbody2d;
 
     private void Start()
     {
@@ -23,29 +23,35 @@ public class Player : MonoBehaviour {
         health = maxHealth;
         energy = maxEnergy;
 
-        rigidbody = GetComponent<Rigidbody2D>();
+        rigidbody2d = GetComponent<Rigidbody2D>();
     }
 
     void FixedUpdate() {
-        float inputHorizontal = Input.GetAxis("Horizontal");
+        /* OLD MOVEMENT SYSTEM
+         *float inputHorizontal = Input.GetAxis("Horizontal");
+         float inputVertical = Input.GetAxis("Vertical");
+
+         // The player moves backwards at reduced speed
+         if (inputVertical < 0) {
+             inputVertical = inputVertical/2;
+         }
+
+         transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
+         transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);*/
+         // regular movement slower + afterburners
+         // Add particle effects for ship
+
         float inputVertical = Input.GetAxis("Vertical");
-        
-        // The player moves backwards at reduced speed
-        if (inputVertical < 0) {
-            inputVertical = inputVertical/2;
+        float inputHorizontal = Input.GetAxis("Horizontal");
+
+        if (inputVertical > 0 ) {
+            inputVertical = 0.01f;
+        } else {
+            inputVertical = 0;
         }
 
-        transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
         transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
-
-        /*EXPERIMENTAL
-         * float inputHorizontal = Input.GetAxis("Horizontal");
-
-        transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
-
-        if (Input.GetKeyDown("w")) {
-            rigidbody.AddForce(transform.up * thrustSpeed);
-        }*/
+        rigidbody2d.AddForce(transform.up * thrustSpeed * inputVertical);
 
         if (Input.GetKeyDown("space") && energy > 0) {
             //Fire the player's primary weapon

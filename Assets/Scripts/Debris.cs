@@ -18,5 +18,4 @@ public class Debris : MonoBehaviour {
             Destroy(gameObject);
         }
     }
-
 }

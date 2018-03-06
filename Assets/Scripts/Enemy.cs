@@ -20,7 +20,7 @@ public class Enemy : MonoBehaviour {
 
     void Update() {
         if (health <= 0) {
-            // TODO: Explosions! Maybe debris? Maybe fire? Though fire doesn't exist in vacuum. Maybe plasma?
+            // TODO: Explosions! Maybe debris? Maybe fire? Though fire doesn't exist in vacuum. Maybe plasma? Gasses decompressing?
             Destroy(gameObject);
         }
         if(followPlayer && Manager.instance.player != null) {

@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 114119407046033992}
   m_Layer: 0
   m_Name: GameManager
-  m_TagString: Untagged
+  m_TagString: GameController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  mainCam: {fileID: 0}
+  minimapCam: {fileID: 0}
   starPrefab: {fileID: 1598964375993438, guid: 24d9d15d58ef7d649823bb4f0eda3905, type: 2}
   currentNavPoint: {fileID: 0}
   currentRespawnPoint: {fileID: 0}

@@ -84,7 +84,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.0001
+  m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 0
@@ -131,8 +131,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 10
   energy: 50
-  turnSpeed: 250
-  thrustSpeed: 1
+  turnSpeed: 200
+  thrustSpeed: 100
   projectile: {fileID: 1938029989984824, guid: 7fbde8f445b0e154e83c4ab3b5a0f7ca, type: 2}
 --- !u!212 &212486827110617516
 SpriteRenderer:

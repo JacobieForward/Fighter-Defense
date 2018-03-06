@@ -199,7 +199,7 @@ GameObject:
   - component: {fileID: 176081487}
   m_Layer: 0
   m_Name: MainCamera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -442,21 +442,6 @@ Prefab:
     - target: {fileID: 4143781157407108, guid: 9fd4d0f3b4737064487c33960cb65340, type: 2}
       propertyPath: m_RootOrder
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 50742676057831680, guid: 9fd4d0f3b4737064487c33960cb65340,
-        type: 2}
-      propertyPath: m_Mass
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114936481297621632, guid: 9fd4d0f3b4737064487c33960cb65340,
-        type: 2}
-      propertyPath: thrustSpeed
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 114936481297621632, guid: 9fd4d0f3b4737064487c33960cb65340,
-        type: 2}
-      propertyPath: turnSpeed
-      value: 200
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9fd4d0f3b4737064487c33960cb65340, type: 2}
@@ -1288,7 +1273,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -1277209129
+  randomSeed: -1584777522
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -4625,7 +4610,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.0001
+  m_Mass: 10
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 0
