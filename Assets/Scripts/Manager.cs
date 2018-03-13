@@ -59,7 +59,6 @@ public class Manager : MonoBehaviour {
             if ((storedPlayerPosition != player.transform.position || storedPlayerRotation != player.transform.rotation))
             {
                 // Start spawning background stars
-                Debug.Log(player.transform.position.y - storedPlayerPosition.y);
                 // TODO: EVEN STAR DISTRIBUTION WHEN GOING SLOW OR FAST (certain amount of stars onscreen?)
                 if (player.transform.position.y > storedPlayerPosition.y) {
                     Vector3 topPos = Camera.main.ViewportToWorldPoint(new Vector3(Random.Range(0, 1f), 1, 1));
