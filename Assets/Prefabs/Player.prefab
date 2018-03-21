@@ -21,8 +21,8 @@ GameObject:
   - component: {fileID: 4143781157407108}
   - component: {fileID: 212733160410175530}
   - component: {fileID: 114936481297621632}
-  - component: {fileID: 61382322560341914}
-  - component: {fileID: 50742676057831680}
+  - component: {fileID: 50927632924439064}
+  - component: {fileID: 70570292759028534}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -73,7 +73,7 @@ Transform:
   m_Father: {fileID: 4143781157407108}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &50742676057831680
+--- !u!50 &50927632924439064
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 1
@@ -93,8 +93,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!61 &61382322560341914
-BoxCollider2D:
+--- !u!70 &70570292759028534
+CapsuleCollider2D:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
@@ -106,18 +106,8 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.9, y: 3.85}
-    newSize: {x: 2.9, y: 3.85}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
   m_Size: {x: 2.9, y: 3.85}
-  m_EdgeRadius: 0
+  m_Direction: 0
 --- !u!114 &114936481297621632
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -131,9 +121,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 10
   energy: 50
-  turnSpeed: 200
-  thrustSpeed: 100
   projectile: {fileID: 1938029989984824, guid: 7fbde8f445b0e154e83c4ab3b5a0f7ca, type: 2}
+  roundsPerSecond: 0.5
+  energyPerSecond: 1
 --- !u!212 &212486827110617516
 SpriteRenderer:
   m_ObjectHideFlags: 1

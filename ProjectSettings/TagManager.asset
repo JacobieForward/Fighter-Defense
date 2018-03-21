@@ -8,6 +8,7 @@ TagManager:
   - Projectile
   - Debris
   - Enemy Projectile
+  - Pickup
   layers:
   - Default
   - TransparentFX

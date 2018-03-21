@@ -14,6 +14,11 @@ public class Player : MonoBehaviour {
     private float thrustSpeed;
     public GameObject projectile;
 
+    private float shootTimer;
+    public float roundsPerSecond;
+    private float energyTimer;
+    public float energyPerSecond;
+
     private Rigidbody2D rigidbody2d;
 
     private float lowSpeed;
@@ -26,6 +31,9 @@ public class Player : MonoBehaviour {
         health = maxHealth;
         energy = maxEnergy;
         lowSpeed = 0.2f;
+
+        shootTimer = 0.0f;
+        energyTimer = 0.0f;
 
         rigidbody2d = GetComponent<Rigidbody2D>();
     }
@@ -72,10 +80,20 @@ public class Player : MonoBehaviour {
             rigidbody2d.velocity = Vector3.zero;
         }
         */
-        if (Input.GetKeyDown("space") && energy > 0) {
+        if (energy < maxEnergy) {
+            energyTimer += Time.deltaTime;
+            if (energyTimer >= energyPerSecond) {
+                energy += 1;
+                energyTimer = 0.0f;
+            }
+        }
+        shootTimer += Time.deltaTime;
+        if (Input.GetKey("space") && energy > 0 && shootTimer >= roundsPerSecond) {
             //Fire the player's primary weapon
-            Instantiate(projectile, transform.position, transform.rotation);
+            GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
+            Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
             energy -= 1;
+            shootTimer = 0.0f;
         }
 
         if (health <= 0) {
@@ -87,9 +105,15 @@ public class Player : MonoBehaviour {
     void OnCollisionEnter2D(Collision2D other) {
         if (other.gameObject.tag == "Enemy Projectile") {
             health -= 1;
+            Destroy(other.gameObject);
         }
-        if (other.gameObject.tag == "Enemy") {
-            health -= 1;
+        if (other.gameObject.tag == "Pickup") {
+            if (other.gameObject.GetComponent<Pickup>().energy) {
+                energy += 20;
+            }
+            if (other.gameObject.GetComponent<Pickup>().health) {
+                health += 2;
+            }
         }
     }
 }

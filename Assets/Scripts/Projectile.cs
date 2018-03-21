@@ -8,7 +8,6 @@ public class Projectile : MonoBehaviour {
 
     private void Awake() {
         whenInstantiated = Time.timeSinceLevelLoad;
-        Physics2D.IgnoreCollision(Manager.instance.player.GetComponent<Collider2D>(), GetComponent<Collider2D>());
     }
 
     void Update() {
@@ -16,16 +15,6 @@ public class Projectile : MonoBehaviour {
         float timeSinceInstantiated = Time.timeSinceLevelLoad - whenInstantiated;
         if (timeSinceInstantiated > 2.0f) {
             Destroy(gameObject);
-        }
-    }
-
-    void OnCollisionEnter2D(Collision2D other)
-    {
-        if (other.gameObject.tag == "Enemy" || other.gameObject.tag == "Debris"){
-            Destroy(gameObject);
-        }
-        if (other.gameObject.tag == "Player") {
-            // Do nothing
         }
     }
 }

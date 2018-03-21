@@ -19,11 +19,11 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4792726613306482}
+  - component: {fileID: 212375173069226662}
   - component: {fileID: 114803546980096172}
   - component: {fileID: 114582038991578430}
-  - component: {fileID: 212375173069226662}
   - component: {fileID: 61105691309001020}
-  - component: {fileID: 50848134754049924}
+  - component: {fileID: 50648806552554262}
   m_Layer: 0
   m_Name: FollowEnemySpawner
   m_TagString: Enemy
@@ -38,24 +38,24 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1575897152412566}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalPosition: {x: -14.668884, y: 7.7704287, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &50848134754049924
+--- !u!50 &50648806552554262
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1575897152412566}
-  m_BodyType: 2
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 0.0001
+  m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 0
@@ -87,7 +87,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.0001, y: 0.0001}
+  m_Size: {x: 2.85, y: 2.82}
   m_EdgeRadius: 0
 --- !u!114 &114582038991578430
 MonoBehaviour:
@@ -104,6 +104,7 @@ MonoBehaviour:
   speed: 0
   followDistance: 0
   followPlayer: 0
+  projectile: {fileID: 0}
 --- !u!114 &114803546980096172
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -117,7 +118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyToSpawn: {fileID: 1519518595252164, guid: 713ec6f9f8e14dc48acc961349d74f75,
     type: 2}
-  spawnDistance: 10
+  spawnDistance: 30
   respawnRate: 3
 --- !u!212 &212375173069226662
 SpriteRenderer:
