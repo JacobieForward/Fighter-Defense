@@ -122,7 +122,7 @@ MonoBehaviour:
   health: 10
   energy: 50
   projectile: {fileID: 1938029989984824, guid: 7fbde8f445b0e154e83c4ab3b5a0f7ca, type: 2}
-  roundsPerSecond: 0.5
+  roundsPerSecond: 0.2
   energyPerSecond: 1
 --- !u!212 &212486827110617516
 SpriteRenderer:

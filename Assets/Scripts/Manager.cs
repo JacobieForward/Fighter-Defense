@@ -117,12 +117,13 @@ public class Manager : MonoBehaviour {
         minimapCam.transform.position = currentRespawnPoint.transform.position + cameraOffset;
         respawnTimer += Time.deltaTime;
 
-
         if (respawnTimer >= respawnTime)
         {
             Instantiate(playerPrefab, currentRespawnPoint.transform.position, Quaternion.identity);
             player = GameObject.FindGameObjectWithTag("Player");
             playerScript = player.GetComponent<Player>();
+            Time.timeScale = 1.0f;
+            playerScript.timeFrozen = false;
             respawnTimer = 0.0f;
         }
     }

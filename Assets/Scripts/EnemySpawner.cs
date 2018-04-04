@@ -15,7 +15,7 @@ public class EnemySpawner : MonoBehaviour {
     }
 
     void Update(){
-        if (Vector3.Distance(Manager.instance.player.transform.position, transform.position) <= spawnDistance) {
+        if (Manager.instance.player != null && Vector3.Distance(Manager.instance.player.transform.position, transform.position) <= spawnDistance) {
             // Spawn enemy every respawnRate seconds
             spawnTimer += Time.deltaTime;
             if (spawnTimer >= respawnRate) {

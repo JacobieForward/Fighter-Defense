@@ -23,6 +23,8 @@ public class Player : MonoBehaviour {
 
     private float lowSpeed;
 
+    public bool timeFrozen;
+
     private void Start()
     {
         // TODO: Remove thrustspeed and turnspeed declarations out of update when the movement system is designed
@@ -34,6 +36,8 @@ public class Player : MonoBehaviour {
 
         shootTimer = 0.0f;
         energyTimer = 0.0f;
+
+        timeFrozen = false;
 
         rigidbody2d = GetComponent<Rigidbody2D>();
     }
@@ -47,7 +51,7 @@ public class Player : MonoBehaviour {
 
          // The player moves backwards at reduced speed
          if (inputVertical < 0) {
-             inputVertical = inputVertical/2;
+            inputVertical = 0;
          }
 
          transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
@@ -96,6 +100,18 @@ public class Player : MonoBehaviour {
             shootTimer = 0.0f;
         }
 
+        if (Input.GetKeyDown("t")) {
+            Debug.Log("Time toggled");
+            if (timeFrozen)
+            {
+                timeFrozen = false;
+                Time.timeScale = 1.0f;
+            } else {
+                timeFrozen = true;
+                Time.timeScale = 0.5f;
+            }
+        }
+
         if (health <= 0) {
             //TODO: Explosions! Debris!
             Destroy(gameObject);
@@ -106,6 +122,9 @@ public class Player : MonoBehaviour {
         if (other.gameObject.tag == "Enemy Projectile") {
             health -= 1;
             Destroy(other.gameObject);
+        }
+        if (other.gameObject.tag == "Enemy" && other.gameObject.GetComponent<Enemy>().followPlayer) {
+            health -= 1;
         }
         if (other.gameObject.tag == "Pickup") {
             if (other.gameObject.GetComponent<Pickup>().energy) {

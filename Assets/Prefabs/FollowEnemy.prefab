@@ -124,7 +124,11 @@ MonoBehaviour:
   followDistance: 50
   followPlayer: 1
   chanceToDropEnergy: 0.2
-  energyPack: {fileID: 1957757474701914, guid: 3896ddb6d02ac944eb8c27eafa126bcc, type: 2}
+  chanceToDropHealth: 0.1
+  energyPickup: {fileID: 1957757474701914, guid: 3896ddb6d02ac944eb8c27eafa126bcc,
+    type: 2}
+  healthPickup: {fileID: 1144179835873848, guid: dd57bb69ade967f4fac8c77b06c09a56,
+    type: 2}
   projectile: {fileID: 0}
 --- !u!212 &212131852354868592
 SpriteRenderer:
