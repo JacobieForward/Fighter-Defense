@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour {
 
     public GameObject energyPickup;
     public GameObject healthPickup;
+    private GameObject station;
 
     private float shootTime;
     private float shootTimer;
@@ -27,6 +28,7 @@ public class Enemy : MonoBehaviour {
         shootTimer = 0.0f;
         shootTime = 2.0f;
         distanceBetweenEnemies = 5.0f;
+        station = GameObject.Find("TheStation");
     }
 
     void OnCollisionEnter2D(Collision2D other) {
@@ -42,6 +44,7 @@ public class Enemy : MonoBehaviour {
     void Update() {
         shootTimer += Time.deltaTime;
         enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
+
         if (health <= 0) {
             // Chance to drop an energy pack
             if (Random.Range(0 , 1.0f) < chanceToDropEnergy) {
@@ -91,6 +94,10 @@ public class Enemy : MonoBehaviour {
                 Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
                 shootTimer = 0.0f;
             }
+        }
+        if (Vector3.Distance(Manager.instance.player.transform.position, transform.position) > followDistance)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, station.transform.position, speed * Time.deltaTime);
         }
     }
 }

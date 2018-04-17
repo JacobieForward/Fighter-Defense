@@ -13,6 +13,9 @@ public class Player : MonoBehaviour {
     private float turnSpeed;
     private float thrustSpeed;
     public GameObject projectile;
+    private GameObject station;
+    public float tooFarSeconds;
+    private float tooFarTimer;
 
     private float shootTimer;
     public float roundsPerSecond;
@@ -36,10 +39,12 @@ public class Player : MonoBehaviour {
 
         shootTimer = 0.0f;
         energyTimer = 0.0f;
+        tooFarTimer = 0.0f;
 
         timeFrozen = false;
 
         rigidbody2d = GetComponent<Rigidbody2D>();
+        station = GameObject.Find("TheStation");
     }
 
     void FixedUpdate() {
@@ -49,13 +54,27 @@ public class Player : MonoBehaviour {
         thrustSpeed = 20;
         turnSpeed = 200;
 
-         // The player moves backwards at reduced speed
-         if (inputVertical < 0) {
-            inputVertical = 0;
-         }
+        // The player moves backwards at reduced speed
+        if (inputVertical < 0) {
+           inputVertical = 0;
+        }
 
-         transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
-         transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+        transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
+        transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+        
+        if (Vector3.Distance(gameObject.transform.position, station.transform.position) > 100.0f)
+        {
+            Debug.Log("You're too far away from the station! Self Destruct request pending");
+            tooFarTimer += Time.deltaTime;
+            if (tooFarTimer > tooFarSeconds)
+            {
+                Destroy(this.gameObject);
+            }
+        } else
+        {
+            tooFarTimer = 0.0f;
+        }
+
         // regular movement slower + afterburners
         // Add particle effects for ship
 

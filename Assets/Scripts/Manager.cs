@@ -27,7 +27,9 @@ public class Manager : MonoBehaviour {
 
     private Slider healthSlider;
     private Slider energySlider;
+    private Slider stationHealthSlider;
     private Player playerScript;
+    private Station station;
 
     private float respawnTime;
     private float respawnTimer;
@@ -90,10 +92,16 @@ public class Manager : MonoBehaviour {
             // This section managers UI components
             healthSlider.value = playerScript.health;
             energySlider.value = playerScript.energy;
+            stationHealthSlider.value = station.health;
         }
         else
         {
             PlayerRespawn();
+        }
+
+        if (station.health <= 0)
+        {
+            GameOver();
         }
     }
 
@@ -105,11 +113,13 @@ public class Manager : MonoBehaviour {
         playerScript = player.GetComponent<Player>();
         navigationArrow = GameObject.Find("Navigation Arrow");
         minimapCam = GameObject.Find("MinimapCamera").GetComponent<Camera>();
-        currentNavPoint = GameObject.Find("BlackBoxNav");
+        currentNavPoint = GameObject.Find("TheStation");
         healthSlider = GameObject.Find("HealthSlider").GetComponent<Slider>();
         energySlider = GameObject.Find("EnergySlider").GetComponent<Slider>();
+        stationHealthSlider = GameObject.Find("StationHealthSlider").GetComponent<Slider>();
         cameraOffset = new Vector3(0, 0, -2);
         currentRespawnPoint = GameObject.Find("StartRespawnPoint");
+        station = GameObject.Find("TheStation").GetComponent<Station>();
     }
 
     void PlayerRespawn() {
@@ -126,5 +136,10 @@ public class Manager : MonoBehaviour {
             playerScript.timeFrozen = false;
             respawnTimer = 0.0f;
         }
+    }
+
+    void GameOver()
+    {
+        Time.timeScale = 0;
     }
 }
