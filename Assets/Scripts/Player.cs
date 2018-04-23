@@ -16,6 +16,7 @@ public class Player : MonoBehaviour {
     private GameObject station;
     public float tooFarSeconds;
     private float tooFarTimer;
+    private float tooFarDistance;
 
     private float shootTimer;
     public float roundsPerSecond;
@@ -32,14 +33,14 @@ public class Player : MonoBehaviour {
     {
         // TODO: Remove thrustspeed and turnspeed declarations out of update when the movement system is designed
         maxHealth = 10;
-        maxEnergy = 50;
         health = maxHealth;
-        energy = maxEnergy;
+        maxEnergy = energy;
         lowSpeed = 0.2f;
 
         shootTimer = 0.0f;
         energyTimer = 0.0f;
         tooFarTimer = 0.0f;
+        tooFarDistance = 150.0f;
 
         timeFrozen = false;
 
@@ -62,7 +63,7 @@ public class Player : MonoBehaviour {
         transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
         transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
         
-        if (Vector3.Distance(gameObject.transform.position, station.transform.position) > 100.0f)
+        if (Vector3.Distance(gameObject.transform.position, station.transform.position) > tooFarDistance)
         {
             Debug.Log("You're too far away from the station! Self Destruct request pending");
             tooFarTimer += Time.deltaTime;

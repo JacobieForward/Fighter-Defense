@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Projectile : MonoBehaviour {
     public float speed;
@@ -13,8 +11,13 @@ public class Projectile : MonoBehaviour {
     void Update() {
         transform.position += transform.up * Time.deltaTime * speed;
         float timeSinceInstantiated = Time.timeSinceLevelLoad - whenInstantiated;
-        if (timeSinceInstantiated > 2.0f) {
+        if (timeSinceInstantiated > 1.5f) {
             Destroy(gameObject);
         }
+    }
+
+    private void OnBecameInvisible()
+    {
+        Destroy(gameObject);
     }
 }

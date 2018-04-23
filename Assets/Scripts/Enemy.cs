@@ -83,7 +83,7 @@ public class Enemy : MonoBehaviour {
             }
         }
 
-        if (projectile != null && Manager.instance.player != null) {
+        if (projectile != null && Manager.instance.player != null && Manager.instance.player != null && (Vector3.Distance(Manager.instance.player.transform.position, transform.position) < followDistance)) {
             Vector3 dir = Manager.instance.player.transform.position - transform.position;
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
@@ -95,9 +95,9 @@ public class Enemy : MonoBehaviour {
                 shootTimer = 0.0f;
             }
         }
-        if (Vector3.Distance(Manager.instance.player.transform.position, transform.position) > followDistance)
+        if (Manager.instance.player != null && (Vector3.Distance(Manager.instance.player.transform.position, transform.position) > followDistance))
         {
-            transform.position = Vector3.MoveTowards(transform.position, station.transform.position, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, station.transform.position, (speed/2) * Time.deltaTime);
         }
     }
 }

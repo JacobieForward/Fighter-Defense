@@ -11,7 +11,6 @@ public class Manager : MonoBehaviour {
     private float playtime;
     public GameObject player;
     private GameObject navigationArrow;
-    public Camera minimapCam;
     public GameObject starPrefab;
 
     private Vector3 storedPlayerPosition;
@@ -55,7 +54,6 @@ public class Manager : MonoBehaviour {
         if (player != null)
         {
             Camera.main.transform.position = player.transform.position + cameraOffset;
-            minimapCam.transform.position = player.transform.position + cameraOffset;
 
             // This section controls the stars spawning in the player's path
             if ((storedPlayerPosition != player.transform.position || storedPlayerRotation != player.transform.rotation))
@@ -112,7 +110,6 @@ public class Manager : MonoBehaviour {
         player = GameObject.Find("Player");
         playerScript = player.GetComponent<Player>();
         navigationArrow = GameObject.Find("Navigation Arrow");
-        minimapCam = GameObject.Find("MinimapCamera").GetComponent<Camera>();
         currentNavPoint = GameObject.Find("TheStation");
         healthSlider = GameObject.Find("HealthSlider").GetComponent<Slider>();
         energySlider = GameObject.Find("EnergySlider").GetComponent<Slider>();
@@ -124,16 +121,14 @@ public class Manager : MonoBehaviour {
 
     void PlayerRespawn() {
         Camera.main.transform.position = currentRespawnPoint.transform.position + cameraOffset;
-        minimapCam.transform.position = currentRespawnPoint.transform.position + cameraOffset;
         respawnTimer += Time.deltaTime;
+        Time.timeScale = 1.0f;
 
         if (respawnTimer >= respawnTime)
         {
             Instantiate(playerPrefab, currentRespawnPoint.transform.position, Quaternion.identity);
-            player = GameObject.FindGameObjectWithTag("Player");
+            player = GameObject.Find("Player(Clone)");
             playerScript = player.GetComponent<Player>();
-            Time.timeScale = 1.0f;
-            playerScript.timeFrozen = false;
             respawnTimer = 0.0f;
         }
     }

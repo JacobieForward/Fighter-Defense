@@ -53,7 +53,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1247953157313060}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1}
+  m_LocalPosition: {x: 0, y: 15, z: 1}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_Children:
   - {fileID: 4589381339641828}
@@ -68,7 +68,7 @@ Transform:
   m_GameObject: {fileID: 1297817279036070}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 4, y: 4, z: 1}
   m_Children: []
   m_Father: {fileID: 4143781157407108}
   m_RootOrder: 0
@@ -120,11 +120,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 10
-  energy: 50
+  energy: 30
   projectile: {fileID: 1938029989984824, guid: 7fbde8f445b0e154e83c4ab3b5a0f7ca, type: 2}
   tooFarSeconds: 5
-  roundsPerSecond: 0.2
-  energyPerSecond: 1
+  roundsPerSecond: 0.1
+  energyPerSecond: 0.5
   timeFrozen: 0
 --- !u!212 &212486827110617516
 SpriteRenderer:
