@@ -7,8 +7,6 @@ public class Spawner : MonoBehaviour {
     public GameObject mine;
     public GameObject turret;
     private GameObject currentEnemyToSpawn;
-    private Vector3 northSpawn;
-    private Vector3 southSpawn;
     private float spawnSwitchChance;
     private int numToSpawn;
     private float numToSpawnTimer;
@@ -21,16 +19,15 @@ public class Spawner : MonoBehaviour {
     public float numToSpawnIncreaseRate;
 
     private float spawnTimer;
+    private int timeUntilHorde;
 
     void Start()
     {
-        northSpawn = new Vector3(0, 100, 1);
-        southSpawn = new Vector3(0, -100, 1);
         spawnTimer = respawnRate;
         currentEnemyToSpawn = mine;
-        currentSpawnPosition = northSpawn;
         numToSpawn = 1;
         numToSpawnTimer = 0.0f;
+        timeUntilHorde = 100;
     }
 
     void Update()
