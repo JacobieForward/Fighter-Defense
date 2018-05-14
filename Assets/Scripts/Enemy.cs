@@ -10,6 +10,10 @@ public class Enemy : MonoBehaviour {
     public bool followPlayer;
     public float chanceToDropEnergy;
     public float chanceToDropHealth;
+    public bool circlePlayer;
+
+    private float circlePauseTime;
+    private float circlePauseTimer;
 
     public GameObject energyPickup;
     public GameObject healthPickup;
@@ -83,7 +87,7 @@ public class Enemy : MonoBehaviour {
             }
         }
 
-        if (projectile != null && Manager.instance.player != null && Manager.instance.player != null && (Vector3.Distance(Manager.instance.player.transform.position, transform.position) < followDistance)) {
+        if (projectile != null && Manager.instance.player != null && (Vector3.Distance(Manager.instance.player.transform.position, transform.position) < followDistance)) {
             Vector3 dir = Manager.instance.player.transform.position - transform.position;
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
@@ -93,6 +97,10 @@ public class Enemy : MonoBehaviour {
                 GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
                 Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
                 shootTimer = 0.0f;
+            }
+            if (circlePlayer && shootTimer <= 1.0f)
+            {
+                transform.RotateAround(Manager.instance.player.transform.position, Vector3.forward, 20 * Time.deltaTime);
             }
         }
         if (Manager.instance.player != null && (Vector3.Distance(Manager.instance.player.transform.position, transform.position) > followDistance))

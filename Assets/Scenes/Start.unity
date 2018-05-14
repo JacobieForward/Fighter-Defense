@@ -398,7 +398,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.21453287, g: 0.9117647, b: 0.5367021, a: 0.844}
+  m_BackGroundColor: {r: 0, g: 0, b: 1, a: 0.844}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -1162,6 +1162,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mine: {fileID: 1519518595252164, guid: 713ec6f9f8e14dc48acc961349d74f75, type: 2}
   turret: {fileID: 1251111061538830, guid: 2a9fb99f17948924c834044b5fb0152f, type: 2}
+  enemyFighter: {fileID: 0}
   radius: 150
   respawnRate: 4
   numToSpawnIncreaseRate: 60

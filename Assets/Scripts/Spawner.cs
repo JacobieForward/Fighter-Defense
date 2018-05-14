@@ -6,6 +6,7 @@ public class Spawner : MonoBehaviour {
 
     public GameObject mine;
     public GameObject turret;
+    public GameObject enemyFighter;
     private GameObject currentEnemyToSpawn;
     private float spawnSwitchChance;
     private int numToSpawn;
@@ -55,11 +56,13 @@ public class Spawner : MonoBehaviour {
                 {
 
                 }
-                else
-                {
-                    if (Random.Range(0.0f, 1f) < .25f)
-                    {
+                else {
+                    float spawnChance = Random.Range(0.0f, 1f);
+                    if (spawnChance < .25f) {
                         currentEnemyToSpawn = turret;
+                    }
+                    if (spawnChance < .10f) {
+                        currentEnemyToSpawn = enemyFighter;
                     }
                     Instantiate(currentEnemyToSpawn, currentSpawnPosition, Quaternion.identity);
                 }
