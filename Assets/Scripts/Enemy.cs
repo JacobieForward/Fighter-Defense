@@ -30,7 +30,7 @@ public class Enemy : MonoBehaviour {
     private void Start()
     {
         shootTimer = 0.0f;
-        shootTime = 2.0f;
+        shootTime = 3.0f;
         distanceBetweenEnemies = 5.0f;
         station = GameObject.Find("TheStation");
     }
@@ -77,9 +77,7 @@ public class Enemy : MonoBehaviour {
                 }
                 if ((closestEnemy <= distanceBetweenEnemies))
                 {
-                    Debug.Log(closestEnemy);
                     Vector3 dir = (transform.position - closestEnemyObject.transform.position).normalized;
-                    Debug.Log(-dir);
                     transform.position +=  dir * speed * Time.deltaTime;
                 } else {
                     transform.position = Vector3.MoveTowards(transform.position, Manager.instance.player.transform.position, speed * Time.deltaTime);

@@ -6,10 +6,10 @@ using UnityEngine;
 public class Player : MonoBehaviour {
 
     // This script handles every piece of player input
-    public int health;
-    public int energy;
-    private int maxHealth;
-    private int maxEnergy;
+    private int health;
+    private int energy;
+    public int maxHealth;
+    public int maxEnergy;
     private float turnSpeed;
     private float thrustSpeed;
     public GameObject projectile;
@@ -23,19 +23,14 @@ public class Player : MonoBehaviour {
     private float energyTimer;
     public float energyPerSecond;
 
-    private Rigidbody2D rigidbody2d;
-
-    private float lowSpeed;
-
-    public bool timeFrozen;
+    private bool afterburner;
+    private bool timeFrozen;
 
     private void Start()
     {
         // TODO: Remove thrustspeed and turnspeed declarations out of update when the movement system is designed
-        maxHealth = 10;
         health = maxHealth;
-        maxEnergy = energy;
-        lowSpeed = 0.2f;
+        energy = maxEnergy;
 
         shootTimer = 0.0f;
         energyTimer = 0.0f;
@@ -43,8 +38,8 @@ public class Player : MonoBehaviour {
         tooFarDistance = 150.0f;
 
         timeFrozen = false;
+        afterburner = false;
 
-        rigidbody2d = GetComponent<Rigidbody2D>();
         station = GameObject.Find("TheStation");
     }
 
@@ -59,9 +54,15 @@ public class Player : MonoBehaviour {
         if (inputVertical < 0) {
            inputVertical = 0;
         }
-
-        transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
-        transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+        if (!afterburner)
+        {
+            transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
+            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+        } else
+        {
+            transform.position += transform.up * inputVertical * Time.deltaTime * (thrustSpeed * 2);
+            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * (turnSpeed / 2));
+        }
         
         if (Vector3.Distance(gameObject.transform.position, station.transform.position) > tooFarDistance)
         {
@@ -75,39 +76,10 @@ public class Player : MonoBehaviour {
         {
             tooFarTimer = 0.0f;
         }
-
-        // regular movement slower + afterburners
-        // Add particle effects for ship
-
-        /* EXPERIMENTAL MOVEMENT SYSTEM
-         * thrustSpeed = 120;
-        turnSpeed = 200;
-
-        float inputVertical = Input.GetAxis("Vertical");
-        float inputHorizontal = Input.GetAxis("Horizontal");
-
-        if (inputVertical > 0 ) {
-            inputVertical = 0.01f;
-        } else {
-            inputVertical = 0;
-        }
-
-        transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
-
-        if (rigidbody2d.velocity.x > lowSpeed || rigidbody2d.velocity.y > lowSpeed) {
-            rigidbody2d.AddForce(2 * (transform.up * thrustSpeed * inputVertical));
-        } else {
-            rigidbody2d.AddForce(transform.up * thrustSpeed * inputVertical);
-        }
-        
-        if (Input.GetKeyDown("e")) {
-            rigidbody2d.velocity = Vector3.zero;
-        }
-        */
         if (energy < maxEnergy) {
             energyTimer += Time.deltaTime;
             if (energyTimer >= energyPerSecond) {
-                energy += 1;
+                AddEnergy(1);
                 energyTimer = 0.0f;
             }
         }
@@ -119,9 +91,17 @@ public class Player : MonoBehaviour {
             energy -= 1;
             shootTimer = 0.0f;
         }
-
-        if (Input.GetKeyDown("t")) {
-            Debug.Log("Time toggled");
+        if (Input.GetKeyUp("r"))
+        {
+            if (!afterburner)
+            {
+                afterburner = true;
+            } else
+            {
+                afterburner = false;
+            }
+        }
+        if (Input.GetKeyUp("t")) {
             if (timeFrozen)
             {
                 timeFrozen = false;
@@ -148,11 +128,41 @@ public class Player : MonoBehaviour {
         }
         if (other.gameObject.tag == "Pickup") {
             if (other.gameObject.GetComponent<Pickup>().energy) {
-                energy += 20;
+                AddEnergy(20);
+                
             }
             if (other.gameObject.GetComponent<Pickup>().health) {
-                health += 2;
+                AddHealth(4);
             }
         }
+    }
+
+    void AddEnergy(int amount) {
+        if ((amount + energy) > maxEnergy) {
+            energy = maxEnergy;
+        } else
+        {
+            energy += amount;
+        }
+    }
+
+    void AddHealth(int amount) {
+        if ((amount + health) > maxHealth)
+        {
+            health = maxHealth;
+        } else
+        {
+            health += amount;
+        }
+    }
+
+    public int GetHealth()
+    {
+        return health;
+    }
+
+    public int GetEnergy()
+    {
+        return energy;
     }
 }

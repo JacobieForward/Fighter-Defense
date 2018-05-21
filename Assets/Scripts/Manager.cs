@@ -48,6 +48,7 @@ public class Manager : MonoBehaviour {
     }
 
     void Update() {
+
         playtime += Time.deltaTime;
         
         // This causes the camera to follow the player and handles respawn behavior
@@ -88,8 +89,8 @@ public class Manager : MonoBehaviour {
             navigationArrow.transform.localEulerAngles = new Vector3(0f, 0f, angle - 90); // For some reason the angle was off by 90 degrees, so that is the magic number that makes this work properly
 
             // This section managers UI components
-            healthSlider.value = playerScript.health;
-            energySlider.value = playerScript.energy;
+            healthSlider.value = playerScript.GetHealth();
+            energySlider.value = playerScript.GetEnergy();
             stationHealthSlider.value = station.health;
         }
         else
@@ -99,6 +100,7 @@ public class Manager : MonoBehaviour {
 
         if (station.health <= 0)
         {
+            Debug.Log(playtime);
             GameOver();
         }
     }

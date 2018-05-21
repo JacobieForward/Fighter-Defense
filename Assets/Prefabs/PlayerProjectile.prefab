@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dab67e44140a0dd4b81a9330dc41dd5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 50
+  speed: 70
 --- !u!198 &198418512350043232
 ParticleSystem:
   m_ObjectHideFlags: 1

@@ -165,7 +165,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 15
+  orthographic size: 25
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -773,7 +773,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 10
+  m_MaxValue: 30
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -958,7 +958,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 30
+  m_MaxValue: 50
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -1162,7 +1162,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mine: {fileID: 1519518595252164, guid: 713ec6f9f8e14dc48acc961349d74f75, type: 2}
   turret: {fileID: 1251111061538830, guid: 2a9fb99f17948924c834044b5fb0152f, type: 2}
-  enemyFighter: {fileID: 0}
+  enemyFighter: {fileID: 1669593624047358, guid: 63ab26335ab3f3842ae225247dbbd323,
+    type: 2}
   radius: 150
   respawnRate: 4
   numToSpawnIncreaseRate: 60
@@ -1177,7 +1178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f861fff9b74c2f498f37d24c47c2c85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 10
+  health: 30
 --- !u!1 &1235711600
 GameObject:
   m_ObjectHideFlags: 0

@@ -129,12 +129,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc51466f9bd5f94891b7658ff1b8539, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 3
+  health: 1
   speed: 4
-  followDistance: 30
+  followDistance: 50
   followPlayer: 0
   chanceToDropEnergy: 0
   chanceToDropHealth: 0
+  circlePlayer: 0
   energyPickup: {fileID: 0}
   healthPickup: {fileID: 0}
   projectile: {fileID: 1615388409671260, guid: 82be63a3931742a45991cc187fda6233, type: 2}
