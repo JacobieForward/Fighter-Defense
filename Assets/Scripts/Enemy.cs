@@ -46,6 +46,10 @@ public class Enemy : MonoBehaviour {
     }
 
     void Update() {
+        if (Manager.instance.tutorial)
+        {
+            return;
+        }
         shootTimer += Time.deltaTime;
         enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
 

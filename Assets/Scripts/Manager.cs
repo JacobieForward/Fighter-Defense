@@ -27,8 +27,11 @@ public class Manager : MonoBehaviour {
     private Slider healthSlider;
     private Slider energySlider;
     private Slider stationHealthSlider;
+    private Text gameOverText;
     private Player playerScript;
     private Station station;
+    private GameObject tutorialCanvas;
+    public bool tutorial;
 
     private float respawnTime;
     private float respawnTimer;
@@ -48,7 +51,20 @@ public class Manager : MonoBehaviour {
     }
 
     void Update() {
+        // This section managers UI components
+        healthSlider.value = playerScript.GetHealth();
+        energySlider.value = playerScript.GetEnergy();
+        stationHealthSlider.value = station.health;
+        if (tutorial)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                tutorial = false;
+                tutorialCanvas.SetActive(false);
 
+            }
+            return;
+        }
         playtime += Time.deltaTime;
         
         // This causes the camera to follow the player and handles respawn behavior
@@ -87,11 +103,6 @@ public class Manager : MonoBehaviour {
             Vector3 distance = targetScreenPosition - pointerScreenPosition;
             float angle = Mathf.Atan2(distance.y, distance.x) * Mathf.Rad2Deg;
             navigationArrow.transform.localEulerAngles = new Vector3(0f, 0f, angle - 90); // For some reason the angle was off by 90 degrees, so that is the magic number that makes this work properly
-
-            // This section managers UI components
-            healthSlider.value = playerScript.GetHealth();
-            energySlider.value = playerScript.GetEnergy();
-            stationHealthSlider.value = station.health;
         }
         else
         {
@@ -100,7 +111,6 @@ public class Manager : MonoBehaviour {
 
         if (station.health <= 0)
         {
-            Debug.Log(playtime);
             GameOver();
         }
     }
@@ -118,7 +128,10 @@ public class Manager : MonoBehaviour {
         stationHealthSlider = GameObject.Find("StationHealthSlider").GetComponent<Slider>();
         cameraOffset = new Vector3(0, 0, -2);
         currentRespawnPoint = GameObject.Find("StartRespawnPoint");
+        gameOverText = GameObject.Find("GameOverText").GetComponent<Text>();
         station = GameObject.Find("TheStation").GetComponent<Station>();
+        tutorialCanvas = GameObject.Find("TutorialCanvas");
+        tutorial = true;
     }
 
     void PlayerRespawn() {
@@ -137,6 +150,7 @@ public class Manager : MonoBehaviour {
 
     void GameOver()
     {
+        gameOverText.text = "GAME OVER. You survived for " + playtime + "seconds.";
         Time.timeScale = 0;
     }
 }

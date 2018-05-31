@@ -38,6 +38,10 @@ public class Spawner : MonoBehaviour {
 
     void Update()
     {
+        if (Manager.instance.tutorial)
+        {
+            return;
+        }
         if (roundEndTimer <= roundEndTime)
         {
             SpawnEnemies();

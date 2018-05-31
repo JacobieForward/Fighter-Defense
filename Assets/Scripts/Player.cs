@@ -44,11 +44,15 @@ public class Player : MonoBehaviour {
     }
 
     void FixedUpdate() {
+        if (Manager.instance.tutorial)
+        {
+            return;
+        }
         float inputHorizontal = Input.GetAxis("Horizontal");
         float inputVertical = Input.GetAxis("Vertical");
 
         thrustSpeed = 20;
-        turnSpeed = 200;
+        turnSpeed = 180;
 
         // The player moves backwards at reduced speed
         if (inputVertical < 0) {
@@ -91,15 +95,12 @@ public class Player : MonoBehaviour {
             energy -= 1;
             shootTimer = 0.0f;
         }
-        if (Input.GetKeyUp("r"))
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
-            if (!afterburner)
-            {
-                afterburner = true;
-            } else
-            {
-                afterburner = false;
-            }
+            afterburner = true;
+        } else
+        {
+            afterburner = false;
         }
         if (Input.GetKeyUp("t")) {
             if (timeFrozen)
