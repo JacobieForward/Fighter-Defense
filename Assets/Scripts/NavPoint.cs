@@ -12,7 +12,7 @@ public class NavPoint : MonoBehaviour {
         if (other.gameObject.tag == "Player") {
             Debug.Log("Navpoint Switched.");
             // Set next navpoint
-            Manager.instance.currentNavPoint = nextNavPoint;
+            //Manager.instance.currentNavPoint = nextNavPoint;
             // Display messages
 
             // Destroy this navpoint

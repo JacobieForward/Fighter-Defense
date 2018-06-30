@@ -51,10 +51,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a032c0b24d887944082c886bbfb28bd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mineKillCount: 0
+  turretKillCount: 0
+  fighterKillCount: 0
   player: {fileID: 0}
-  minimapCam: {fileID: 0}
   starPrefab: {fileID: 1598964375993438, guid: 24d9d15d58ef7d649823bb4f0eda3905, type: 2}
+  explosionPrefab: {fileID: 1280427070216824, guid: 004b94ef8fe8dd34785dc52af8ffa835,
+    type: 2}
+  deathExplosionPrefab: {fileID: 1451395926080244, guid: 19a5ce3d5fd06d24d9ae0c694c0155b5,
+    type: 2}
   currentNavPoint: {fileID: 0}
   currentRespawnPoint: {fileID: 0}
   playerPrefab: {fileID: 1247953157313060, guid: 9fd4d0f3b4737064487c33960cb65340,
     type: 2}
+  tutorial: 0

@@ -8,12 +8,11 @@ public class Station : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.tag == "Enemy Projectile")
+        if (other.gameObject.tag == "Projectile" || other.gameObject.tag == "Enemy Projectile")
         {
-            health -= 1;
             Destroy(other.gameObject);
         }
-        if (other.gameObject.tag == "Enemy" && other.gameObject.GetComponent<Enemy>().followPlayer)
+        if (other.gameObject.tag == "Enemy")
         {
             health -= 1;
         }
@@ -21,10 +20,6 @@ public class Station : MonoBehaviour
 
     private void Update()
     {
-        if (health <= 0)
-        {
-            
-            //GAME OVER
-        }
+        
     }
 }

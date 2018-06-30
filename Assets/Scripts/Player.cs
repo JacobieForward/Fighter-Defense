@@ -13,6 +13,7 @@ public class Player : MonoBehaviour {
     private float turnSpeed;
     private float thrustSpeed;
     public GameObject projectile;
+    public GameObject missile;
     private GameObject station;
     public float tooFarSeconds;
     private float tooFarTimer;
@@ -111,6 +112,14 @@ public class Player : MonoBehaviour {
                 timeFrozen = true;
                 Time.timeScale = 0.5f;
             }
+        }
+        if (Input.GetKey("return") && energy > 11 && shootTimer >= roundsPerSecond)
+        {
+            //Fire the player's secondary weapon
+            GameObject missileInstance = Instantiate(missile, transform.position, transform.rotation);
+            Physics2D.IgnoreCollision(missileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+            energy -= 10;
+            shootTimer = 0.0f;
         }
 
         if (health <= 0) {

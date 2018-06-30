@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour {
     // This encompases all enemies with variables checked the specify what kind of enemy
-    public int health;
     public float speed;
     public float followDistance;
     public bool followPlayer;
@@ -13,7 +12,7 @@ public class Enemy : MonoBehaviour {
     public bool circlePlayer;
 
     private float circlePauseTime;
-    private float circlePauseTimer;
+    private float circlePauseTimer;     
 
     public GameObject energyPickup;
     public GameObject healthPickup;
@@ -36,12 +35,19 @@ public class Enemy : MonoBehaviour {
     }
 
     void OnCollisionEnter2D(Collision2D other) {
+        // Colliding with player projectiles causes death
         if (other.gameObject.tag == "Projectile") {
-            health -= 1;
             Destroy(other.gameObject);
+            Death();
         }
+        // Colliding with the station causes death, does damage to station (seen in station script)
+        if (other.gameObject.name == "TheStation")
+        {
+            Death();
+        }
+        // Collision with the player only causes death if the enemy is a Mine enemy
         if (other.gameObject.tag == "Player" && followPlayer) {
-            Destroy(gameObject);
+            Death();
         }
     }
 
@@ -50,22 +56,7 @@ public class Enemy : MonoBehaviour {
         {
             return;
         }
-        shootTimer += Time.deltaTime;
         enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
-
-        if (health <= 0) {
-            // Chance to drop an energy pack
-            if (Random.Range(0 , 1.0f) < chanceToDropEnergy) {
-                Instantiate(energyPickup, transform.position, transform.rotation);
-            }
-            // chance to drop a health pack
-            if (Random.Range(0, 1.0f) < chanceToDropHealth)
-            {
-                Instantiate(healthPickup, transform.position, transform.rotation);
-            }
-            // TODO: Explosions! Maybe debris? Maybe fire? Though fire doesn't exist in vacuum. Maybe plasma? Gasses decompressing?
-            Destroy(gameObject);
-        }
         if(followPlayer && Manager.instance.player != null) {
             if ((Vector3.Distance(Manager.instance.player.transform.position, transform.position) < followDistance)) {
                 // Move towards the player while keeping distance from other enemies
@@ -94,20 +85,62 @@ public class Enemy : MonoBehaviour {
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
             transform.Rotate(0, 0, -90);
+            shootTimer += Time.deltaTime;
             if (shootTimer >= shootTime)
             {
                 GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
                 Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
                 shootTimer = 0.0f;
             }
-            if (circlePlayer && shootTimer <= 1.0f)
+            if (circlePlayer && shootTimer <= 2.5f)
             {
                 transform.RotateAround(Manager.instance.player.transform.position, Vector3.forward, 20 * Time.deltaTime);
             }
         }
+        else
+        {
+            shootTimer = 0.0f;
+        }
+        if (Manager.instance.player == null)
+        {
+            MoveToStation();
+        }
         if (Manager.instance.player != null && (Vector3.Distance(Manager.instance.player.transform.position, transform.position) > followDistance))
         {
-            transform.position = Vector3.MoveTowards(transform.position, station.transform.position, (speed/2) * Time.deltaTime);
+            MoveToStation();
         }
+    }
+
+    public void Death()
+    {
+        // Chance to drop an energy pack
+        if (Random.Range(0, 1.0f) < chanceToDropEnergy)
+        {
+            Instantiate(energyPickup, transform.position, transform.rotation);
+        }
+        // chance to drop a health pack
+        if (Random.Range(0, 1.0f) < chanceToDropHealth)
+        {
+            Instantiate(healthPickup, transform.position, transform.rotation);
+        }
+        if (gameObject.name.Contains("Mine"))
+        {
+            Manager.instance.mineKillCount += 1;
+        }
+        else if (gameObject.name.Contains("Turret"))
+        {
+            Manager.instance.turretKillCount += 1;
+        }
+        else if (gameObject.name.Contains("Fighter"))
+        {
+            Manager.instance.fighterKillCount += 1;
+        }
+        Instantiate(Manager.instance.deathExplosionPrefab, transform.position, transform.rotation);
+        Destroy(gameObject);
+    }
+
+    void MoveToStation()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, station.transform.position, (speed / 2) * Time.deltaTime);
     }
 }

@@ -9,29 +9,39 @@ public class Manager : MonoBehaviour {
 
     public static Manager instance = null;
     private float playtime;
+    public int mineKillCount;
+    public int turretKillCount;
+    public int fighterKillCount;
     public GameObject player;
-    private GameObject navigationArrow;
     public GameObject starPrefab;
-
+    public GameObject explosionPrefab;
+    public GameObject deathExplosionPrefab;
+    
     private Vector3 storedPlayerPosition;
     private Quaternion storedPlayerRotation;
 
     private Vector3 screenPos;
     private Vector2 onScreenPos;
     private Vector3 cameraOffset;
-
-    public GameObject currentNavPoint;
+    
     public GameObject currentRespawnPoint;
     public GameObject playerPrefab;
 
     private Slider healthSlider;
     private Slider energySlider;
     private Slider stationHealthSlider;
+    private GameObject gameOverCanvas;
     private Text gameOverText;
+    private Text mineKillCountText;
+    private Text turretKillCountText;
+    private Text fighterKillCountText;
     private Player playerScript;
     private Station station;
     private GameObject tutorialCanvas;
     public bool tutorial;
+
+    private List<GameObject> starList = new List<GameObject>();
+    private int starLimit;
 
     private float respawnTime;
     private float respawnTimer;
@@ -51,7 +61,7 @@ public class Manager : MonoBehaviour {
     }
 
     void Update() {
-        // This section managers UI components
+        // This section manages UI components
         healthSlider.value = playerScript.GetHealth();
         energySlider.value = playerScript.GetEnergy();
         stationHealthSlider.value = station.health;
@@ -61,7 +71,6 @@ public class Manager : MonoBehaviour {
             {
                 tutorial = false;
                 tutorialCanvas.SetActive(false);
-
             }
             return;
         }
@@ -70,39 +79,8 @@ public class Manager : MonoBehaviour {
         // This causes the camera to follow the player and handles respawn behavior
         if (player != null)
         {
-            Camera.main.transform.position = player.transform.position + cameraOffset;
 
-            // This section controls the stars spawning in the player's path
-            if ((storedPlayerPosition != player.transform.position || storedPlayerRotation != player.transform.rotation))
-            {
-                // Start spawning background stars
-                // TODO: EVEN STAR DISTRIBUTION WHEN GOING SLOW OR FAST (certain amount of stars onscreen?)
-                if (player.transform.position.y > storedPlayerPosition.y) {
-                    Vector3 topPos = Camera.main.ViewportToWorldPoint(new Vector3(Random.Range(0, 1f), 1, 1));
-                    Instantiate(starPrefab, topPos, Quaternion.identity);
-                }
-                if (player.transform.position.y < storedPlayerPosition.y) {
-                    Vector3 bottomPos = Camera.main.ViewportToWorldPoint(new Vector3(Random.Range(0, 1f), 0, 1));
-                    Instantiate(starPrefab, bottomPos, Quaternion.identity);
-                }
-                if (player.transform.position.x > storedPlayerPosition.x) {
-                    Vector3 rightPos = Camera.main.ViewportToWorldPoint(new Vector3(1, Random.Range(0, 1f), 1));
-                    Instantiate(starPrefab, rightPos, Quaternion.identity);
-                }
-                if (player.transform.position.x < storedPlayerPosition.x) {
-                    Vector3 leftPos = Camera.main.ViewportToWorldPoint(new Vector3(0, Random.Range(0, 1f), 1));
-                    Instantiate(starPrefab, leftPos, Quaternion.identity);
-                }
-            }
-            storedPlayerPosition = player.transform.position;
-            storedPlayerRotation = player.transform.rotation;
-
-            // This section updates the navigation arrow's positioning
-            Vector3 targetScreenPosition = Camera.main.WorldToScreenPoint(currentNavPoint.transform.position);
-            Vector3 pointerScreenPosition = Camera.main.WorldToScreenPoint(player.transform.position);
-            Vector3 distance = targetScreenPosition - pointerScreenPosition;
-            float angle = Mathf.Atan2(distance.y, distance.x) * Mathf.Rad2Deg;
-            navigationArrow.transform.localEulerAngles = new Vector3(0f, 0f, angle - 90); // For some reason the angle was off by 90 degrees, so that is the magic number that makes this work properly
+            SpawnStars();
         }
         else
         {
@@ -119,23 +97,32 @@ public class Manager : MonoBehaviour {
         playtime = 0.0f;
         respawnTimer = 0.0f;
         respawnTime = 3.0f;
+        starLimit = 20;
+        tutorial = true;
+        gameOverCanvas = GameObject.Find("GameOverCanvas");
+        gameOverText = GameObject.Find("GameOverText").GetComponent<Text>();
+        mineKillCountText = GameObject.Find("MineKillCountText").GetComponent<Text>();
+        turretKillCountText = GameObject.Find("TurretKillCountText").GetComponent<Text>();
+        fighterKillCountText = GameObject.Find("FighterKillCountText").GetComponent<Text>();
+        if (gameOverCanvas.activeSelf)
+        {
+            gameOverCanvas.SetActive(false);
+        }
         player = GameObject.Find("Player");
         playerScript = player.GetComponent<Player>();
-        navigationArrow = GameObject.Find("Navigation Arrow");
-        currentNavPoint = GameObject.Find("TheStation");
         healthSlider = GameObject.Find("HealthSlider").GetComponent<Slider>();
         energySlider = GameObject.Find("EnergySlider").GetComponent<Slider>();
         stationHealthSlider = GameObject.Find("StationHealthSlider").GetComponent<Slider>();
         cameraOffset = new Vector3(0, 0, -2);
         currentRespawnPoint = GameObject.Find("StartRespawnPoint");
-        gameOverText = GameObject.Find("GameOverText").GetComponent<Text>();
         station = GameObject.Find("TheStation").GetComponent<Station>();
         tutorialCanvas = GameObject.Find("TutorialCanvas");
-        tutorial = true;
+        mineKillCount = 0;
+        turretKillCount = 0;
+        fighterKillCount = 0;
     }
 
     void PlayerRespawn() {
-        Camera.main.transform.position = currentRespawnPoint.transform.position + cameraOffset;
         respawnTimer += Time.deltaTime;
         Time.timeScale = 1.0f;
 
@@ -145,12 +132,70 @@ public class Manager : MonoBehaviour {
             player = GameObject.Find("Player(Clone)");
             playerScript = player.GetComponent<Player>();
             respawnTimer = 0.0f;
+            Instantiate(explosionPrefab, station.transform.position, Quaternion.identity);
         }
     }
 
     void GameOver()
     {
         gameOverText.text = "GAME OVER. You survived for " + playtime + "seconds.";
+        mineKillCountText.text = mineKillCount.ToString();
+        turretKillCountText.text = turretKillCount.ToString();
+        fighterKillCountText.text = fighterKillCount.ToString();
+        gameOverCanvas.SetActive(true);
         Time.timeScale = 0;
+    }
+
+    void SpawnStars()
+    {
+        Camera.main.transform.position = player.transform.position + cameraOffset;
+
+        // This section controls the stars spawning in the player's path
+        if ((storedPlayerPosition != player.transform.position || storedPlayerRotation != player.transform.rotation))
+        {
+            Vector3 position = gameObject.transform.position;
+            // Start spawning background stars
+            // TODO: EVEN STAR DISTRIBUTION WHEN GOING SLOW OR FAST (certain amount of stars onscreen?)
+            // if statement order determines priority of star spawning
+            if (player.transform.position.y > storedPlayerPosition.y)
+            {
+                position = Camera.main.ViewportToWorldPoint(new Vector3(Random.Range(0, 1f), 1, 1));
+                CreateStar(position);
+            }
+            if (player.transform.position.x > storedPlayerPosition.x)
+            {
+                position = Camera.main.ViewportToWorldPoint(new Vector3(1, Random.Range(0, 1f), 1));
+                CreateStar(position);
+            }
+            if (player.transform.position.y < storedPlayerPosition.y)
+            {
+                position = Camera.main.ViewportToWorldPoint(new Vector3(Random.Range(0, 1f), 0, 1));
+                CreateStar(position);
+            }
+            if (player.transform.position.x < storedPlayerPosition.x)
+            {
+                position = Camera.main.ViewportToWorldPoint(new Vector3(0, Random.Range(0, 1f), 1));
+                CreateStar(position);
+            }
+        }
+        storedPlayerPosition = player.transform.position;
+        storedPlayerRotation = player.transform.rotation;
+    }
+
+    private void CreateStar(Vector3 position)
+    {
+        GameObject newstar = Instantiate(starPrefab, position, Quaternion.identity);
+        starList.Add(newstar);
+    }
+
+    public bool RemoveStar(GameObject star)
+    {
+        if (starList.Contains(star))
+        {
+            starList.Remove(star);
+            Destroy(star);
+            return true;
+        }
+        return false;
     }
 }

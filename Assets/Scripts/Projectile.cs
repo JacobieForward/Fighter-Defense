@@ -20,4 +20,15 @@ public class Projectile : MonoBehaviour {
     {
         Destroy(gameObject);
     }
+
+    private void OnDestroy()
+    {
+        if (gameObject.name.Contains("Missile"))
+        {
+            GameObject explosionInstance = Instantiate(Manager.instance.explosionPrefab, transform.position, transform.rotation);
+            Nova explosionScript = explosionInstance.GetComponent<Nova>();
+            explosionScript.SetTime(1.0f);
+            explosionScript.SetGrowth(15.0f);
+        }
+    }
 }
