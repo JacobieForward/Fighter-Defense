@@ -13,7 +13,7 @@ public class SelfDestructStar : MonoBehaviour {
 
     private void Update() {
         if (!render.isVisible) {
-            Manager.instance.RemoveStar(gameObject);
+           Manager.instance.RemoveStar(gameObject);
         }
     }
 }

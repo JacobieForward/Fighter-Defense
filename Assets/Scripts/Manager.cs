@@ -38,13 +38,21 @@ public class Manager : MonoBehaviour {
     private Player playerScript;
     private Station station;
     private GameObject tutorialCanvas;
+    private GameObject respawningText;
+    private Text livesText;
     public bool tutorial;
+    private bool freshSpawn;
 
     private List<GameObject> starList = new List<GameObject>();
     private int starLimit;
 
     private float respawnTime;
     private float respawnTimer;
+
+    private float lifeTime;
+    private float lifeTimer;
+
+    private int lives;
 
     void Awake () {
 		if (instance == null) {
@@ -65,6 +73,8 @@ public class Manager : MonoBehaviour {
         healthSlider.value = playerScript.GetHealth();
         energySlider.value = playerScript.GetEnergy();
         stationHealthSlider.value = station.health;
+        livesText.text = lives.ToString();
+
         if (tutorial)
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -76,17 +86,37 @@ public class Manager : MonoBehaviour {
         }
         playtime += Time.deltaTime;
         
-        // This causes the camera to follow the player and handles respawn behavior
+        // This handles respawn behavior
         if (player != null)
         {
-
+            // Camera follows the player
+            Camera.main.transform.position = player.transform.position + cameraOffset;
+            // Spawn stars in player's path
             SpawnStars();
         }
         else
         {
+            // If player is == null then the player has been destroyed and the respawning process activates
+            respawningText.SetActive(true);
             PlayerRespawn();
         }
 
+        // If the player has just spawned at the station create stars surrounding them
+        if (freshSpawn)
+        {
+            InitialStars();
+            freshSpawn = false;
+        }
+
+        // Runs life timer, adds life if the timer runs up
+        lifeTimer += Time.deltaTime;
+        if (lifeTimer >= lifeTime)
+        {
+            lives += 1;
+            lifeTimer += 50.0f;
+        }
+
+        // Checks for loss condition
         if (station.health <= 0)
         {
             GameOver();
@@ -97,7 +127,7 @@ public class Manager : MonoBehaviour {
         playtime = 0.0f;
         respawnTimer = 0.0f;
         respawnTime = 3.0f;
-        starLimit = 20;
+        starLimit = 80;
         tutorial = true;
         gameOverCanvas = GameObject.Find("GameOverCanvas");
         gameOverText = GameObject.Find("GameOverText").GetComponent<Text>();
@@ -117,9 +147,16 @@ public class Manager : MonoBehaviour {
         currentRespawnPoint = GameObject.Find("StartRespawnPoint");
         station = GameObject.Find("TheStation").GetComponent<Station>();
         tutorialCanvas = GameObject.Find("TutorialCanvas");
+        respawningText = GameObject.Find("RespawningText");
+        livesText = GameObject.Find("LivesText").GetComponent<Text>();
+        respawningText.SetActive(false);
         mineKillCount = 0;
         turretKillCount = 0;
         fighterKillCount = 0;
+        lives = 2;
+        lifeTime = 100.0f;
+        lifeTimer = 0.0f;
+        freshSpawn = true;
     }
 
     void PlayerRespawn() {
@@ -132,7 +169,9 @@ public class Manager : MonoBehaviour {
             player = GameObject.Find("Player(Clone)");
             playerScript = player.GetComponent<Player>();
             respawnTimer = 0.0f;
+            freshSpawn = true;
             Instantiate(explosionPrefab, station.transform.position, Quaternion.identity);
+            respawningText.SetActive(false);
         }
     }
 
@@ -148,10 +187,9 @@ public class Manager : MonoBehaviour {
 
     void SpawnStars()
     {
-        Camera.main.transform.position = player.transform.position + cameraOffset;
 
         // This section controls the stars spawning in the player's path
-        if ((storedPlayerPosition != player.transform.position || storedPlayerRotation != player.transform.rotation))
+        if ((storedPlayerPosition != player.transform.position || storedPlayerRotation != player.transform.rotation) && starList.Count <= starLimit)
         {
             Vector3 position = gameObject.transform.position;
             // Start spawning background stars
@@ -182,7 +220,7 @@ public class Manager : MonoBehaviour {
         storedPlayerRotation = player.transform.rotation;
     }
 
-    private void CreateStar(Vector3 position)
+    void CreateStar(Vector3 position)
     {
         GameObject newstar = Instantiate(starPrefab, position, Quaternion.identity);
         starList.Add(newstar);
@@ -197,5 +235,27 @@ public class Manager : MonoBehaviour {
             return true;
         }
         return false;
+    }
+
+    void InitialStars()
+    {
+        for (int i = 0; i < 40; i++)
+        {
+            Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
+            CreateStar(screenPosition);
+        }
+    }
+
+    public void SubtractLife()
+    {
+        if (lives <= 0)
+        {
+            respawningText.SetActive(false);
+            GameOver();
+        }
+        else
+        {
+            lives -= 1;
+        }
     }
 }

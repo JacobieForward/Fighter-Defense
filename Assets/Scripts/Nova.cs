@@ -14,7 +14,7 @@ public class Nova : MonoBehaviour {
 
     // Use this for initialization
     void Awake () {
-        secondsAlive = 5.0f; // maximum amount of seconds alive. There is no control over this however
+        secondsAlive = 4.0f; // maximum amount of seconds alive. There is no control over this however
         growthSpeed = 20.0f;
         aliveCounter = 0.0f;
 

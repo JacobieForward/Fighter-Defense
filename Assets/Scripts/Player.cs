@@ -15,6 +15,7 @@ public class Player : MonoBehaviour {
     public GameObject projectile;
     public GameObject missile;
     private GameObject station;
+    private GameObject selfDestructText;
     public float tooFarSeconds;
     private float tooFarTimer;
     private float tooFarDistance;
@@ -36,12 +37,15 @@ public class Player : MonoBehaviour {
         shootTimer = 0.0f;
         energyTimer = 0.0f;
         tooFarTimer = 0.0f;
+        tooFarSeconds = 5f;
         tooFarDistance = 150.0f;
 
         timeFrozen = false;
         afterburner = false;
 
         station = GameObject.Find("TheStation");
+        selfDestructText = GameObject.Find("TooFarText");
+        selfDestructText.SetActive(false);
     }
 
     void FixedUpdate() {
@@ -71,11 +75,12 @@ public class Player : MonoBehaviour {
         
         if (Vector3.Distance(gameObject.transform.position, station.transform.position) > tooFarDistance)
         {
-            Debug.Log("You're too far away from the station! Self Destruct request pending");
+            selfDestructText.SetActive(true);
             tooFarTimer += Time.deltaTime;
             if (tooFarTimer > tooFarSeconds)
             {
-                Destroy(this.gameObject);
+                selfDestructText.SetActive(false);
+                health = 0;
             }
         } else
         {
@@ -124,6 +129,7 @@ public class Player : MonoBehaviour {
 
         if (health <= 0) {
             //TODO: Explosions! Debris!
+            Manager.instance.SubtractLife();
             Destroy(gameObject);
         }
     }
