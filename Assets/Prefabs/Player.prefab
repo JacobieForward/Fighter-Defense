@@ -247,6 +247,7 @@ MonoBehaviour:
   maxHealth: 10
   maxEnergy: 50
   projectile: {fileID: 1938029989984824, guid: 7fbde8f445b0e154e83c4ab3b5a0f7ca, type: 2}
+  turret: {fileID: 1527958270766338, guid: c4c02add86987994c94f2c030429f6da, type: 2}
   missile: {fileID: 1434112178822386, guid: 0753754b4388aff42ab7102e477c6c85, type: 2}
   tooFarSeconds: 10
   roundsPerSecond: 0.2

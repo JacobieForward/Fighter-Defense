@@ -12,7 +12,7 @@ public class Enemy : MonoBehaviour {
     public bool circlePlayer;
 
     private float circlePauseTime;
-    private float circlePauseTimer;     
+    private float circlePauseTimer;
 
     public GameObject energyPickup;
     public GameObject healthPickup;
@@ -25,6 +25,9 @@ public class Enemy : MonoBehaviour {
 
     private float distanceBetweenEnemies;
     private GameObject[] enemiesNearby;
+
+    private GameObject[] playersNearby;
+    private GameObject closestPlayer;
 
     private void Start()
     {
@@ -49,6 +52,11 @@ public class Enemy : MonoBehaviour {
         if (other.gameObject.tag == "Player" && followPlayer) {
             Death();
         }
+
+        if (other.gameObject.tag == "Station")
+        {
+            Death();
+        }
     }
 
     void Update() {
@@ -56,56 +64,75 @@ public class Enemy : MonoBehaviour {
         {
             return;
         }
-        enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
-        if(followPlayer && Manager.instance.player != null) {
-            if ((Vector3.Distance(Manager.instance.player.transform.position, transform.position) < followDistance)) {
-                // Move towards the player while keeping distance from other enemies
-                float closestEnemy = 10.0f;
-                GameObject closestEnemyObject = null;
-                foreach (GameObject enemy in enemiesNearby)
+
+        playersNearby = GameObject.FindGameObjectsWithTag("Player");
+        if (playersNearby.Length != 0)
+        {
+            closestPlayer = playersNearby[0];
+            foreach (GameObject player in playersNearby)
+            {
+                if (Vector3.Distance(gameObject.transform.position, player.transform.position) < Vector3.Distance(gameObject.transform.position, closestPlayer.transform.position))
                 {
-                    if ((Vector3.Distance(enemy.transform.position, transform.position) < closestEnemy) && (enemy != this.gameObject))
+                    closestPlayer = player;
+                }
+            }
+
+            enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
+            if (followPlayer && Manager.instance.player != null)
+            {
+                if ((Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance))
+                {
+                    // Move towards the player while keeping distance from other enemies
+                    float closestEnemy = 10.0f;
+                    GameObject closestEnemyObject = null;
+                    foreach (GameObject enemy in enemiesNearby)
                     {
-                        closestEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-                        closestEnemyObject = enemy;
+                        if ((Vector3.Distance(enemy.transform.position, transform.position) < closestEnemy) && (enemy != this.gameObject))
+                        {
+                            closestEnemy = Vector3.Distance(transform.position, enemy.transform.position);
+                            closestEnemyObject = enemy;
+                        }
+                    }
+                    if ((closestEnemy <= distanceBetweenEnemies))
+                    {
+                        Vector3 dir = (transform.position - closestEnemyObject.transform.position).normalized;
+                        transform.position += dir * speed * Time.deltaTime;
+                    }
+                    else
+                    {
+                        transform.position = Vector3.MoveTowards(transform.position, closestPlayer.transform.position, speed * Time.deltaTime);
                     }
                 }
-                if ((closestEnemy <= distanceBetweenEnemies))
+            }
+
+            if (projectile != null && Manager.instance.player != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance))
+            {
+                Vector3 dir = closestPlayer.transform.position - transform.position;
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+                transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+                transform.Rotate(0, 0, -90);
+                shootTimer += Time.deltaTime;
+                if (shootTimer >= shootTime)
                 {
-                    Vector3 dir = (transform.position - closestEnemyObject.transform.position).normalized;
-                    transform.position +=  dir * speed * Time.deltaTime;
-                } else {
-                    transform.position = Vector3.MoveTowards(transform.position, Manager.instance.player.transform.position, speed * Time.deltaTime);
+                    GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
+                    Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                    shootTimer = 0.0f;
+                }
+                if (circlePlayer && shootTimer <= 2.5f)
+                {
+                    transform.RotateAround(closestPlayer.transform.position, Vector3.forward, 20 * Time.deltaTime);
                 }
             }
-        }
-
-        if (projectile != null && Manager.instance.player != null && (Vector3.Distance(Manager.instance.player.transform.position, transform.position) < followDistance)) {
-            Vector3 dir = Manager.instance.player.transform.position - transform.position;
-            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            transform.Rotate(0, 0, -90);
-            shootTimer += Time.deltaTime;
-            if (shootTimer >= shootTime)
+            else
             {
-                GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
-                Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
                 shootTimer = 0.0f;
-            }
-            if (circlePlayer && shootTimer <= 2.5f)
-            {
-                transform.RotateAround(Manager.instance.player.transform.position, Vector3.forward, 20 * Time.deltaTime);
             }
         }
         else
         {
-            shootTimer = 0.0f;
-        }
-        if (Manager.instance.player == null)
-        {
             MoveToStation();
         }
-        if (Manager.instance.player != null && (Vector3.Distance(Manager.instance.player.transform.position, transform.position) > followDistance))
+        if (Manager.instance.player != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) > followDistance))
         {
             MoveToStation();
         }
@@ -135,6 +162,7 @@ public class Enemy : MonoBehaviour {
         {
             Manager.instance.fighterKillCount += 1;
         }
+        Manager.instance.AddPoints(5);
         Instantiate(Manager.instance.deathExplosionPrefab, transform.position, transform.rotation);
         Destroy(gameObject);
     }

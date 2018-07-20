@@ -7,13 +7,16 @@ public class SelfDestructStar : MonoBehaviour {
 
     private void Start()
     {
-        render = GetComponent<Renderer>();
+        render = GetComponent<Renderer>(); 
     }
 
 
     private void Update() {
-        if (!render.isVisible) {
+        if (!render.isVisible && Manager.instance != null) {
            Manager.instance.RemoveStar(gameObject);
+        } else if (!render.isVisible)
+        {
+            Destroy(gameObject);
         }
     }
 }

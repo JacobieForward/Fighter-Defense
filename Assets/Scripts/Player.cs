@@ -13,12 +13,9 @@ public class Player : MonoBehaviour {
     private float turnSpeed;
     private float thrustSpeed;
     public GameObject projectile;
+    public GameObject turret;
     public GameObject missile;
     private GameObject station;
-    private GameObject selfDestructText;
-    public float tooFarSeconds;
-    private float tooFarTimer;
-    private float tooFarDistance;
 
     private float shootTimer;
     public float roundsPerSecond;
@@ -36,16 +33,11 @@ public class Player : MonoBehaviour {
 
         shootTimer = 0.0f;
         energyTimer = 0.0f;
-        tooFarTimer = 0.0f;
-        tooFarSeconds = 5f;
-        tooFarDistance = 150.0f;
 
         timeFrozen = false;
         afterburner = false;
 
         station = GameObject.Find("TheStation");
-        selfDestructText = GameObject.Find("TooFarText");
-        selfDestructText.SetActive(false);
     }
 
     void FixedUpdate() {
@@ -73,19 +65,6 @@ public class Player : MonoBehaviour {
             transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * (turnSpeed / 2));
         }
         
-        if (Vector3.Distance(gameObject.transform.position, station.transform.position) > tooFarDistance)
-        {
-            selfDestructText.SetActive(true);
-            tooFarTimer += Time.deltaTime;
-            if (tooFarTimer > tooFarSeconds)
-            {
-                selfDestructText.SetActive(false);
-                health = 0;
-            }
-        } else
-        {
-            tooFarTimer = 0.0f;
-        }
         if (energy < maxEnergy) {
             energyTimer += Time.deltaTime;
             if (energyTimer >= energyPerSecond) {
@@ -108,6 +87,7 @@ public class Player : MonoBehaviour {
         {
             afterburner = false;
         }
+
         if (Input.GetKeyUp("t")) {
             if (timeFrozen)
             {
@@ -118,6 +98,7 @@ public class Player : MonoBehaviour {
                 Time.timeScale = 0.5f;
             }
         }
+
         if (Input.GetKey("return") && energy > 11 && shootTimer >= roundsPerSecond)
         {
             //Fire the player's secondary weapon
@@ -127,9 +108,22 @@ public class Player : MonoBehaviour {
             shootTimer = 0.0f;
         }
 
+        if (Input.GetKeyUp("f"))
+        {
+            //Spawn a turret under the player
+            if (Manager.instance.CheckPoints(100))
+            {
+                GameObject turretInstance = Instantiate(turret, transform.position, transform.rotation);
+                Physics2D.IgnoreCollision(turretInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+            } else
+            {
+                //play "Not enough resources" sound
+            }
+
+        }
+
         if (health <= 0) {
             //TODO: Explosions! Debris!
-            Manager.instance.SubtractLife();
             Destroy(gameObject);
         }
     }
