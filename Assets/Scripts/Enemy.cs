@@ -7,8 +7,8 @@ public class Enemy : MonoBehaviour {
     public float speed;
     public float followDistance;
     public bool followPlayer;
-    public float chanceToDropEnergy;
-    public float chanceToDropHealth;
+    private float chanceToDropEnergy;
+    private float chanceToDropHealth;
     public bool circlePlayer;
 
     private float circlePauseTime;
@@ -29,10 +29,14 @@ public class Enemy : MonoBehaviour {
     private GameObject[] playersNearby;
     private GameObject closestPlayer;
 
+    public List<GameObject> debrisList;
+
     private void Start()
     {
         shootTimer = 0.0f;
-        shootTime = 3.0f;
+        shootTime = Random.Range(2.0f, 3.0f);
+        chanceToDropEnergy = 0.15f;
+        chanceToDropHealth = 0.07f;
         distanceBetweenEnemies = 5.0f;
         station = GameObject.Find("TheStation");
     }
@@ -60,11 +64,6 @@ public class Enemy : MonoBehaviour {
     }
 
     void Update() {
-        if (Manager.instance.tutorial)
-        {
-            return;
-        }
-
         playersNearby = GameObject.FindGameObjectsWithTag("Player");
         if (playersNearby.Length != 0)
         {
@@ -76,7 +75,7 @@ public class Enemy : MonoBehaviour {
                     closestPlayer = player;
                 }
             }
-
+            RotateToTClosestPlayer();
             enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
             if (followPlayer && Manager.instance.player != null)
             {
@@ -107,10 +106,7 @@ public class Enemy : MonoBehaviour {
 
             if (projectile != null && Manager.instance.player != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance))
             {
-                Vector3 dir = closestPlayer.transform.position - transform.position;
-                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-                transform.Rotate(0, 0, -90);
+                RotateToTClosestPlayer();
                 shootTimer += Time.deltaTime;
                 if (shootTimer >= shootTime)
                 {
@@ -136,19 +132,26 @@ public class Enemy : MonoBehaviour {
         {
             MoveToStation();
         }
+        if (Manager.instance.player == null)
+        {
+            MoveToStation();
+        }
     }
 
     public void Death()
-    {
-        // Chance to drop an energy pack
-        if (Random.Range(0, 1.0f) < chanceToDropEnergy)
+    {   if (!gameObject.name.Contains("Mine"))
         {
-            Instantiate(energyPickup, transform.position, transform.rotation);
-        }
-        // chance to drop a health pack
-        if (Random.Range(0, 1.0f) < chanceToDropHealth)
-        {
-            Instantiate(healthPickup, transform.position, transform.rotation);
+            float dropChance = Random.Range(0, 1.0f);
+            // Chance to drop a health pack
+            if (dropChance < chanceToDropHealth)
+            {
+                Instantiate(healthPickup, transform.position, transform.rotation);
+            }
+            // chance to drop an energy pack
+            else if (dropChance < chanceToDropEnergy)
+            {
+                Instantiate(energyPickup, transform.position, transform.rotation);
+            }
         }
         if (gameObject.name.Contains("Mine"))
         {
@@ -163,12 +166,46 @@ public class Enemy : MonoBehaviour {
             Manager.instance.fighterKillCount += 1;
         }
         Manager.instance.AddPoints(5);
-        Instantiate(Manager.instance.deathExplosionPrefab, transform.position, transform.rotation);
+        GameObject explosionInstance = Instantiate(Manager.instance.deathExplosionPrefab, transform.position, transform.rotation);
+        if (Manager.instance.muteToggle.isOn)
+        {
+            explosionInstance.GetComponent<AudioSource>().mute = true;
+        }
+        SpawnDebris(Random.Range(1, debrisList.Count));
         Destroy(gameObject);
     }
 
     void MoveToStation()
     {
-        transform.position = Vector3.MoveTowards(transform.position, station.transform.position, (speed / 2) * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, station.transform.position, (speed / 1.5f) * Time.deltaTime);
+    }
+
+    void RotateToTClosestPlayer()
+    {
+        Vector3 dir = closestPlayer.transform.position - transform.position;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.Rotate(0, 0, -90);
+    }
+
+    void SpawnDebris(int numOfDebris)
+    {
+        if (debrisList.Count != 0)
+        {
+            List<GameObject> tempDebrisList = debrisList;
+            GameObject debris = tempDebrisList[0];
+            for (int i = 0; i <= numOfDebris; i++)
+            {
+                debris = tempDebrisList[Random.Range(0, tempDebrisList.Count - 1)];
+                if (debris != null)
+                {
+                    Instantiate(debris, transform.position, transform.rotation);
+                }
+                tempDebrisList.Remove(debris);
+            }
+        } else
+        {
+            return;
+        }
     }
 }

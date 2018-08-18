@@ -4,17 +4,22 @@ using UnityEngine;
 
 public class Debris : MonoBehaviour {
 
-    public int health;
+    Rigidbody2D rb;
+    Vector2 direction;
 
-    void OnCollisionEnter2D(Collision2D other) {
-        if (other.gameObject.tag == "Projectile") {
-            health -= 1;
-        }
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
     }
 
-    void Update() {
-        if (health <= 0) {
-            // TODO: Explosions! Maybe debris? Maybe fire? Though fire doesn't exist in vacuum. Maybe plasma?
+    private void Start()
+    {
+        rb.velocity = Random.onUnitSphere * Random.Range(5, 20);
+    }
+
+    void OnCollisionEnter2D(Collision2D other) {
+        if (other.gameObject.tag == "Projectile" || other.gameObject.tag == "Enemy Projectile" || other.gameObject.tag == "TurretProjectile") {
+            Destroy(other.gameObject);
             Destroy(gameObject);
         }
     }

@@ -6,7 +6,7 @@ public class Nova : MonoBehaviour {
 
     ParticleSystem emitter;
 
-    CircleCollider2D collider;
+    new CircleCollider2D collider;
 
     private float growthSpeed;
     private float secondsAlive;
@@ -43,6 +43,10 @@ public class Nova : MonoBehaviour {
         if (collision.gameObject.tag == "Player")
         {
             Physics2D.IgnoreCollision(collision.collider, collider);
+        }
+        if (collision.gameObject.tag == "Debris")
+        {
+            Destroy(collision.gameObject);
         }
     }
 

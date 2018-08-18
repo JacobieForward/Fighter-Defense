@@ -14,16 +14,19 @@ public class Player : MonoBehaviour {
     private float thrustSpeed;
     public GameObject projectile;
     public GameObject turret;
+    public GameObject mine;
     public GameObject missile;
-    private GameObject station;
 
     private float shootTimer;
     public float roundsPerSecond;
     private float energyTimer;
     public float energyPerSecond;
+    private int turretCost;
+    private int mineCost;
 
     private bool afterburner;
-    private bool timeFrozen;
+
+    public List<GameObject> debrisList;
 
     private void Start()
     {
@@ -33,18 +36,13 @@ public class Player : MonoBehaviour {
 
         shootTimer = 0.0f;
         energyTimer = 0.0f;
+        turretCost = 100;
+        mineCost = 25;
 
-        timeFrozen = false;
         afterburner = false;
-
-        station = GameObject.Find("TheStation");
     }
 
     void FixedUpdate() {
-        if (Manager.instance.tutorial)
-        {
-            return;
-        }
         float inputHorizontal = Input.GetAxis("Horizontal");
         float inputVertical = Input.GetAxis("Vertical");
 
@@ -89,13 +87,14 @@ public class Player : MonoBehaviour {
         }
 
         if (Input.GetKeyUp("t")) {
-            if (timeFrozen)
+            //Spawn a mine
+            if (Manager.instance.CheckPoints(mineCost))
             {
-                timeFrozen = false;
-                Time.timeScale = 1.0f;
-            } else {
-                timeFrozen = true;
-                Time.timeScale = 0.5f;
+                GameObject mineInstance = Instantiate(mine, transform.position, transform.rotation);
+            }
+            else
+            {
+                //play "Not enough resources" sound
             }
         }
 
@@ -111,10 +110,10 @@ public class Player : MonoBehaviour {
         if (Input.GetKeyUp("f"))
         {
             //Spawn a turret under the player
-            if (Manager.instance.CheckPoints(100))
+            if (Manager.instance.CheckPoints(turretCost))
             {
                 GameObject turretInstance = Instantiate(turret, transform.position, transform.rotation);
-                Physics2D.IgnoreCollision(turretInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                turretCost += 10;
             } else
             {
                 //play "Not enough resources" sound
@@ -123,8 +122,7 @@ public class Player : MonoBehaviour {
         }
 
         if (health <= 0) {
-            //TODO: Explosions! Debris!
-            Destroy(gameObject);
+            Death();
         }
     }
 
@@ -132,16 +130,18 @@ public class Player : MonoBehaviour {
         if (other.gameObject.tag == "Enemy Projectile") {
             health -= 1;
             Destroy(other.gameObject);
+            Manager.instance.ScreenFlashRed();
         }
         if (other.gameObject.tag == "Enemy" && other.gameObject.GetComponent<Enemy>().followPlayer) {
             health -= 1;
+            Manager.instance.ScreenFlashRed();
         }
         if (other.gameObject.tag == "Pickup") {
             if (other.gameObject.GetComponent<Pickup>().energy) {
-                AddEnergy(20);
+                AddEnergy(20); // Should have started using constants
                 
             }
-            if (other.gameObject.GetComponent<Pickup>().health) {
+            else if (other.gameObject.GetComponent<Pickup>().health) {
                 AddHealth(4);
             }
         }
@@ -174,5 +174,42 @@ public class Player : MonoBehaviour {
     public int GetEnergy()
     {
         return energy;
+    }
+
+    // Straight copy pasted from the Enemy script. An issue of not using inheritance at all in this project
+    void SpawnDebris()
+    {
+        if (debrisList.Count != 0)
+        {
+            List<GameObject> tempDebrisList = debrisList;
+            GameObject debris = tempDebrisList[0];
+            for (int i = 0; i <= debrisList.Count; i++)
+            {
+                if (tempDebrisList.Count == 0)
+                {
+                    debris = tempDebrisList[0];
+                }
+                else
+                {
+                    debris = tempDebrisList[Random.Range(0, tempDebrisList.Count - 1)];
+                }
+                if (debris != null)
+                {
+                    Instantiate(debris, transform.position, transform.rotation);
+                }
+                tempDebrisList.Remove(debris);
+            }
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    public void Death()
+    {
+        SpawnDebris();
+        Manager.instance.PlayerDied();
+        Destroy(gameObject);
     }
 }

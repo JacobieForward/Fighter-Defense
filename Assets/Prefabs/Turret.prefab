@@ -92,7 +92,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 7
 --- !u!61 &61251599570421568
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -130,14 +130,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 4
-  followDistance: 50
+  followDistance: 40
   followPlayer: 0
-  chanceToDropEnergy: 0
-  chanceToDropHealth: 0
   circlePlayer: 0
-  energyPickup: {fileID: 0}
-  healthPickup: {fileID: 0}
+  energyPickup: {fileID: 1957757474701914, guid: 3896ddb6d02ac944eb8c27eafa126bcc,
+    type: 2}
+  healthPickup: {fileID: 1144179835873848, guid: dd57bb69ade967f4fac8c77b06c09a56,
+    type: 2}
   projectile: {fileID: 1615388409671260, guid: 82be63a3931742a45991cc187fda6233, type: 2}
+  debrisList:
+  - {fileID: 1400569986017328, guid: 7b0083bbcb9c54b46ab9ed7dbb0914cd, type: 2}
+  - {fileID: 1573636843495888, guid: aa6c34907c069374a9d016835ea95ba8, type: 2}
+  - {fileID: 1065616594480290, guid: 5dd38084d74551e438e0df6eed9f9d40, type: 2}
 --- !u!212 &212027703662983654
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -219,7 +223,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 76d6d5dc80418124dab194e06529b302, type: 3}
-  m_Color: {r: 0.3584906, g: 0, b: 0.022493526, a: 1}
+  m_Color: {r: 1, g: 0, b: 0.06593418, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

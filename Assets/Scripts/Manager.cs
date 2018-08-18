@@ -30,6 +30,8 @@ public class Manager : MonoBehaviour {
     private Slider healthSlider;
     private Slider energySlider;
     private Slider stationHealthSlider;
+    private Graphic flashPanel;
+    private bool flashActive;
     private GameObject selfDestructText;
     private float tooFarSeconds;
     private float tooFarTimer;
@@ -39,8 +41,6 @@ public class Manager : MonoBehaviour {
     private Text mineKillCountText;
     private Text turretKillCountText;
     private Text fighterKillCountText;
-    private Text tutorialText;
-    private Renderer tutorialTextRenderer;
     private Player playerScript;
     private Station station;
     private GameObject tutorialCanvas;
@@ -53,11 +53,18 @@ public class Manager : MonoBehaviour {
 
     private float respawnTime;
     private float respawnTimer;
+    private int pointsToRespawn;
 
-    private float lifeTime;
-    private float lifeTimer;
-
+    private float pointTime;
+    private float pointTimer;
+    private float quickPointTime;
+    private float quickPointTimer;
     private int points;
+    private int playerDeaths;
+
+    private AudioSource audioSource;
+    public Toggle muteToggle;
+    
 
     void Awake () {
 		if (instance == null) {
@@ -70,54 +77,9 @@ public class Manager : MonoBehaviour {
 	}
 
     void Start(){
-        Init();
-    }
-
-    void Update() {
-        // This section manages UI components
-        healthSlider.value = playerScript.GetHealth();
-        energySlider.value = playerScript.GetEnergy();
-        stationHealthSlider.value = station.health;
-        pointsText.text = points.ToString();
-
-        if (tutorial)
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                tutorial = false;
-                tutorialCanvas.SetActive(false);
-                InitialStars();
-            }
-            return;
-        }
-        playtime += Time.deltaTime;
-        
-        // This handles respawn behavior
-        if (player != null)
-        {
-            // Camera follows the player
-            Camera.main.transform.position = player.transform.position + cameraOffset;
-            // Spawn stars in player's path
-            SpawnStars();
-        }
-        else
-        {
-            // If player is == null then the player has been destroyed and the respawning process activates
-            respawningText.SetActive(true);
-            PlayerRespawn();
-        }
-
-        // Checks for loss condition
-        if (station.health <= 0)
-        {
-            GameOver();
-        }
-
-        CheckForSelfDestruct();
-    }
-
-    void Init() {
+        muteToggle = GameObject.Find("MuteToggle").GetComponent<Toggle>();
         playtime = 0.0f;
+        playerDeaths = 0;
         respawnTimer = 0.0f;
         respawnTime = 3.0f;
         starLimit = 80;
@@ -136,6 +98,8 @@ public class Manager : MonoBehaviour {
         healthSlider = GameObject.Find("HealthSlider").GetComponent<Slider>();
         energySlider = GameObject.Find("EnergySlider").GetComponent<Slider>();
         stationHealthSlider = GameObject.Find("StationHealthSlider").GetComponent<Slider>();
+        flashPanel = GameObject.Find("FlashPanel").GetComponent<Graphic>();
+        flashActive = false;
         cameraOffset = new Vector3(0, 0, -2);
         currentRespawnPoint = GameObject.Find("StartRespawnPoint");
         station = GameObject.Find("TheStation").GetComponent<Station>();
@@ -146,21 +110,108 @@ public class Manager : MonoBehaviour {
         mineKillCount = 0;
         turretKillCount = 0;
         fighterKillCount = 0;
+        pointTimer = 0.0f;
+        pointTime = 2.0f;
+        quickPointTimer = 0.0f;
+        quickPointTime = 0.1f;
         points = 0;
         selfDestructText = GameObject.Find("TooFarText");
-        tutorialText = GameObject.Find("TutorialText").GetComponent<Text>();
-        tutorialTextRenderer = tutorialText.gameObject.GetComponent<Renderer>();
         selfDestructText.SetActive(false);
+        audioSource = GetComponent<AudioSource>();
+
         tooFarTimer = 0.0f;
         tooFarSeconds = 5f;
         tooFarDistance = 150.0f;
+        pointsToRespawn = 100;
+
+        // TODO: Fix this quick, bullshit, wasteful way to fix the mute toggle bug
+        tutorialCanvas.SetActive(false);
+        tutorialCanvas.SetActive(true);
+        Time.timeScale = 0;
+    }
+
+    void Update() {
+        // This section manages UI components
+        healthSlider.value = playerScript.GetHealth();
+        energySlider.value = playerScript.GetEnergy();
+        stationHealthSlider.value = station.health;
+        pointsText.text = points.ToString();
+
+        if (muteToggle.isOn)
+        {
+            audioSource.mute = true;
+        } else
+        {
+            audioSource.mute = false;
+        }
+
+        if (tutorial)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                tutorial = false;
+                tutorialCanvas.SetActive(false);
+                InitialStars();
+                Time.timeScale = 1;
+            }
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            tutorial = !tutorial;
+            tutorialCanvas.SetActive(true);
+            Time.timeScale = 0;
+        }
+        playtime += Time.deltaTime;
+        
+        // This handles respawn behavior
+        if (player != null)
+        {
+            // Camera follows the player
+            Camera.main.transform.position = player.transform.position + cameraOffset;
+            // Spawn stars in player's path
+            SpawnStars();
+        }
+        else
+        {
+            // If player is == null then the player has been destroyed and the respawning process activates
+            respawningText.SetActive(true);
+            PlayerRespawn();
+        }
+        pointTimer += Time.deltaTime;
+        if (pointTimer >= pointTime)
+        {
+            points += 1;
+            pointTimer = 0.0f;
+        }
+
+        // Checks for loss condition
+        if (station.health <= 0)
+        {
+            GameOver();
+        }
+
+        // While this ties directly into ScreenFlashRed it is seperated in code which is terrible for readability
+        if (flashActive)
+        {
+            Color opaqueColor = flashPanel.color;
+            opaqueColor.a = flashPanel.color.a - Time.deltaTime * 5 ;
+            flashPanel.color = opaqueColor;
+            if (flashPanel.color.a == 0)
+            {
+                flashActive = false;
+            }
+        }
+
+        CheckForSelfDestruct();
     }
 
     void PlayerRespawn() {
         respawnTimer += Time.deltaTime;
         Time.timeScale = 1.0f;
 
-        if (respawnTimer >= respawnTime)
+        if ((respawnTimer >= respawnTime) && CheckPoints(pointsToRespawn))
         {
             Instantiate(playerPrefab, currentRespawnPoint.transform.position, Quaternion.identity);
             player = GameObject.Find("Player(Clone)");
@@ -170,6 +221,19 @@ public class Manager : MonoBehaviour {
             respawningText.SetActive(false);
             Camera.main.transform.position = station.gameObject.transform.position;
             InitialStars();
+            pointsToRespawn += 25;
+        }
+        else
+        {
+            if (points <= pointsToRespawn)
+            {
+                quickPointTimer += Time.deltaTime;
+                if (quickPointTimer >= quickPointTime)
+                {
+                    points += 1;
+                    quickPointTimer = 0.0f;
+                }
+            }
         }
     }
 
@@ -237,10 +301,13 @@ public class Manager : MonoBehaviour {
 
     void InitialStars()
     {
-        for (int i = 0; i < 40; i++)
+        if (starList.Count <= starLimit)
         {
-            Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
-            CreateStar(screenPosition);
+            for (int i = 0; i < 40; i++)
+            {
+                Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
+                CreateStar(screenPosition);
+            }
         }
     }
 
@@ -286,7 +353,7 @@ public class Manager : MonoBehaviour {
             if (tooFarTimer > tooFarSeconds)
             {
                 selfDestructText.SetActive(false);
-                Destroy(player.gameObject);
+                playerScript.Death();
             }
         }
         else
@@ -296,20 +363,28 @@ public class Manager : MonoBehaviour {
         }
     }
 
-    void PopupText(string input)
+    public void ScreenFlashRed()
     {
-        tutorialText.text = input;
-        StartCoroutine("TutorialTextFade");
+        Color opaqueColor = flashPanel.color;
+        opaqueColor.a = 1.0f;
+        flashPanel.color = opaqueColor;
+        flashActive = true;
     }
 
-    IEnumerator TutorialTextFade()
+    public void PlayerDied()
     {
-        for (float f = 1f; f >= 0; f -= 0.1f)
-        {
-            Color c = tutorialTextRenderer.material.color;
-            c.a = f;
-            tutorialTextRenderer.material.color = c;
-            yield return null;
-        }
+        playerDeaths += 1;
     }
+
+    public int GetPlayerDeaths()
+    {
+        return playerDeaths;
+    }
+
+    public float GetPlayTime()
+    {
+        return playtime;
+    }
+
+    // TODO: Slomo on player death
 }

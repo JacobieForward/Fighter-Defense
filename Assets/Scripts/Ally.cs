@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Turret : MonoBehaviour {
+public class Ally : MonoBehaviour {
 
     public GameObject projectile;
     public int followDistance;
@@ -13,6 +13,8 @@ public class Turret : MonoBehaviour {
     private GameObject[] enemiesNearby;
     private GameObject closestEnemy;
 
+    public List<GameObject> debrisList;
+
 	// Use this for initialization
 	void Start () {
         shootTimer = 0.0f;
@@ -22,6 +24,7 @@ public class Turret : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
+        shootTimer += Time.deltaTime;
         if (enemiesNearby.Length != 0)
         {
             closestEnemy = enemiesNearby[0];
@@ -32,17 +35,20 @@ public class Turret : MonoBehaviour {
                     closestEnemy = enemy;
                 }
             }
-            if (Vector3.Distance(closestEnemy.transform.position, transform.position) < followDistance)
+            Vector3 dir = closestEnemy.transform.position - transform.position;
+            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            transform.Rotate(0, 0, -90);
+            if ((Vector3.Distance(closestEnemy.transform.position, transform.position) < followDistance) && projectile != null)
             {
-                Vector3 dir = closestEnemy.transform.position - transform.position;
-                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-                transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-                transform.Rotate(0, 0, -90);
-                shootTimer += Time.deltaTime;
                 if (shootTimer >= shootTime)
                 {
                     GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
                     Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                    if (Manager.instance.player != null)
+                    {
+                        Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>());
+                    }
                     shootTimer = 0.0f;
                 }
             }
@@ -67,6 +73,30 @@ public class Turret : MonoBehaviour {
 
     void Death()
     {
+        SpawnDebris(Random.Range(0, debrisList.Count));
         Destroy(gameObject);
+    }
+
+    // Straight copy pasted from the Enemy script. An issue of not using inheritance at all in this project
+    void SpawnDebris(int numOfDebris)
+    {
+        if (debrisList.Count != 0)
+        {
+            List<GameObject> tempDebrisList = debrisList;
+            GameObject debris = tempDebrisList[0];
+            for (int i = 0; i <= numOfDebris; i++)
+            {
+                debris = tempDebrisList[Random.Range(0, debrisList.Count)];
+                if (debris != null)
+                {
+                    Instantiate(debris, transform.position, transform.rotation);
+                }
+                tempDebrisList.Remove(debris);
+            }
+        }
+        else
+        {
+            return;
+        }
     }
 }

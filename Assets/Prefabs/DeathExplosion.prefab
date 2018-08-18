@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 198503882151697510}
   - component: {fileID: 199515309010180108}
   - component: {fileID: 82564084089952274}
+  - component: {fileID: 114076283663158448}
   m_Layer: 0
   m_Name: DeathExplosion
   m_TagString: Untagged
@@ -54,13 +55,13 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: f4678f0a738631f4ca01ca69fb488e2e, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.3
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 150
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -138,6 +139,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &114076283663158448
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1451395926080244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d06a1c770cad1b44b214618a8148b38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!198 &198503882151697510
 ParticleSystem:
   m_ObjectHideFlags: 1

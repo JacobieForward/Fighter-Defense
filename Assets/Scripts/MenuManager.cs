@@ -28,8 +28,8 @@ public class MenuManager : MonoBehaviour {
 
         selectMapButton.onClick.AddListener(FirstCanvasTask);
         mapOneButton.onClick.AddListener(delegate { SelectMapTask("MapOne"); });
-        mapTwoButton.onClick.AddListener(delegate { SelectMapTask("MapTwo"); });
-        mapThreeButton.onClick.AddListener(delegate { SelectMapTask("MapThree"); });
+        mapTwoButton.onClick.AddListener(delegate { SelectMapTask("MapOne"); });
+        mapThreeButton.onClick.AddListener(delegate { SelectMapTask("MapOne"); });
     }
 	
 	// Update is called once per frame
@@ -44,7 +44,7 @@ public class MenuManager : MonoBehaviour {
 
     void CreateStar(Vector3 position)
     {
-        GameObject newstar = Instantiate(starPrefab, position, Quaternion.identity);
+        Instantiate(starPrefab, position, Quaternion.identity);
     }
 
     void FirstCanvasTask()
@@ -56,6 +56,6 @@ public class MenuManager : MonoBehaviour {
     void SelectMapTask(string mapName)
     {
         Debug.Log(mapName);
-        SceneManager.LoadScene("ArenaOne", LoadSceneMode.Single);
+        SceneManager.LoadScene(mapName, LoadSceneMode.Single);
     }
 }

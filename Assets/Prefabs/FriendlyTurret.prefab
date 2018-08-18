@@ -53,7 +53,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1527958270766338}
   m_LocalRotation: {x: -0, y: -0, z: -0.42662627, w: 0.90442806}
-  m_LocalPosition: {x: -16.245268, y: 11.324248, z: 1}
+  m_LocalPosition: {x: -30, y: -19.5, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4916063993291440}
@@ -92,7 +92,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 7
 --- !u!61 &61972019855562238
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -129,8 +129,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1a64b92195331b4db1d60ce56c54e2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectile: {fileID: 1938029989984824, guid: 7fbde8f445b0e154e83c4ab3b5a0f7ca, type: 2}
+  projectile: {fileID: 1123028668880350, guid: 02947849fc93aef4a9cb2d37ff4dd68a, type: 2}
   followDistance: 50
+  debrisList:
+  - {fileID: 1598461606835800, guid: ddf64105c2729a342bfba97e14c187b6, type: 2}
+  - {fileID: 1518116144959274, guid: db51fbb7a1c7f024abb785a483fe85af, type: 2}
+  - {fileID: 1979792992928590, guid: 1cc6b1277c113074abf67ea21acda0a5, type: 2}
 --- !u!212 &212079187336594168
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -167,7 +171,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 76d6d5dc80418124dab194e06529b302, type: 3}
-  m_Color: {r: 0, g: 1, b: 0.050397635, a: 1}
+  m_Color: {r: 0, g: 1, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

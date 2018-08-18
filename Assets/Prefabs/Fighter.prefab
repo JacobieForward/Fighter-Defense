@@ -92,7 +92,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 7
 --- !u!61 &61155698648573536
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -129,16 +129,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc51466f9bd5f94891b7658ff1b8539, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 1
   speed: 4
-  followDistance: 50
+  followDistance: 40
   followPlayer: 0
-  chanceToDropEnergy: 0
-  chanceToDropHealth: 0
   circlePlayer: 1
-  energyPickup: {fileID: 0}
-  healthPickup: {fileID: 0}
+  energyPickup: {fileID: 1957757474701914, guid: 3896ddb6d02ac944eb8c27eafa126bcc,
+    type: 2}
+  healthPickup: {fileID: 1144179835873848, guid: dd57bb69ade967f4fac8c77b06c09a56,
+    type: 2}
   projectile: {fileID: 1615388409671260, guid: 82be63a3931742a45991cc187fda6233, type: 2}
+  debrisList:
+  - {fileID: 1143077626425948, guid: 302ac1d12d0dac24f913cbd694b56c37, type: 2}
+  - {fileID: 1306081423383742, guid: cfe21437fc26c0b4b8845d79478cae4f, type: 2}
+  - {fileID: 1457326200724126, guid: 89874f36445622d4b84cf5079f87eaea, type: 2}
 --- !u!212 &212222613707487418
 SpriteRenderer:
   m_ObjectHideFlags: 1
