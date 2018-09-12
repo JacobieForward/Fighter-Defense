@@ -19,6 +19,10 @@ public class Pickup : MonoBehaviour {
         if (other.gameObject.tag == "Player") {
             Destroy(gameObject);
         }
+        if (other.gameObject.tag == "Enemy")
+        {
+            Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), other.gameObject.GetComponent<Collider2D>());
+        }
     }
 
     private void Update()

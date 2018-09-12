@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Manager : MonoBehaviour {
     // A singleton variable created in the script Loader
@@ -41,6 +42,8 @@ public class Manager : MonoBehaviour {
     private Text mineKillCountText;
     private Text turretKillCountText;
     private Text fighterKillCountText;
+    private Button restartButton;
+    private Button mainMenuButton;
     private Player playerScript;
     private Station station;
     private GameObject tutorialCanvas;
@@ -62,6 +65,9 @@ public class Manager : MonoBehaviour {
     private int points;
     private int playerDeaths;
 
+    private int alliesDestroyedThisRound;
+    private int stationHealthLostThisRound;
+
     private AudioSource audioSource;
     public Toggle muteToggle;
     
@@ -73,7 +79,7 @@ public class Manager : MonoBehaviour {
         else if (instance != this){
             Destroy(gameObject);
         }
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
 	}
 
     void Start(){
@@ -89,6 +95,10 @@ public class Manager : MonoBehaviour {
         mineKillCountText = GameObject.Find("MineKillCountText").GetComponent<Text>();
         turretKillCountText = GameObject.Find("TurretKillCountText").GetComponent<Text>();
         fighterKillCountText = GameObject.Find("FighterKillCountText").GetComponent<Text>();
+        restartButton = GameObject.Find("RestartButton").GetComponent<Button>();
+        mainMenuButton = GameObject.Find("MainMenuButton").GetComponent<Button>();
+        restartButton.onClick.AddListener(delegate { Restart(); });
+        mainMenuButton.onClick.AddListener(delegate { ReturnToMainMenu(); });
         if (gameOverCanvas.activeSelf)
         {
             gameOverCanvas.SetActive(false);
@@ -123,6 +133,9 @@ public class Manager : MonoBehaviour {
         tooFarSeconds = 5f;
         tooFarDistance = 150.0f;
         pointsToRespawn = 100;
+
+        alliesDestroyedThisRound = 0;
+        stationHealthLostThisRound = 0;
 
         // TODO: Fix this quick, bullshit, wasteful way to fix the mute toggle bug
         tutorialCanvas.SetActive(false);
@@ -301,9 +314,9 @@ public class Manager : MonoBehaviour {
 
     void InitialStars()
     {
-        if (starList.Count <= starLimit)
+        if (starList.Count <= starLimit + 1)
         {
-            for (int i = 0; i < 40; i++)
+            for (int i = 0; i < starLimit + 1; i++)
             {
                 Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
                 CreateStar(screenPosition);
@@ -371,6 +384,16 @@ public class Manager : MonoBehaviour {
         flashActive = true;
     }
 
+    void ReturnToMainMenu()
+    {
+        SceneManager.LoadScene("Main Menu", LoadSceneMode.Single);
+    }
+
+    void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+    }
+
     public void PlayerDied()
     {
         playerDeaths += 1;
@@ -384,6 +407,36 @@ public class Manager : MonoBehaviour {
     public float GetPlayTime()
     {
         return playtime;
+    }
+
+    public int GetAlliesDestroyedThisRound()
+    {
+        return alliesDestroyedThisRound;
+    }
+
+    public void IncrementAllyDestroyedCounter()
+    {
+        alliesDestroyedThisRound += 1;
+    }
+
+    public void ResetAlliesDestroyedCounter()
+    {
+        alliesDestroyedThisRound = 0;
+    }
+
+    public int GetStationHealthLostThisRound()
+    {
+        return stationHealthLostThisRound;
+    }
+
+    public void IncrementStationHealthLost()
+    {
+        stationHealthLostThisRound += 1;
+    }
+
+    public void ResetStationHealthLostCounter()
+    {
+        stationHealthLostThisRound = 0;
     }
 
     // TODO: Slomo on player death

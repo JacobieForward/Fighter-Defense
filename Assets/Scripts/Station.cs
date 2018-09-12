@@ -27,6 +27,7 @@ public class Station : MonoBehaviour
         if (other.gameObject.tag == "Enemy")
         {
             health -= 1;
+            Manager.instance.IncrementStationHealthLost();
             if (alertTimer >= alertTime)
             {
                 // play alert sound

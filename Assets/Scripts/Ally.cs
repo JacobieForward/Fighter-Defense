@@ -15,8 +15,8 @@ public class Ally : MonoBehaviour {
 
     public List<GameObject> debrisList;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         shootTimer = 0.0f;
         shootTime = 3.0f;
 	}
@@ -74,6 +74,10 @@ public class Ally : MonoBehaviour {
     void Death()
     {
         SpawnDebris(Random.Range(0, debrisList.Count));
+        if (!gameObject.name.Contains("mine "))
+        {
+            Manager.instance.IncrementAllyDestroyedCounter();
+        }
         Destroy(gameObject);
     }
 
@@ -98,5 +102,12 @@ public class Ally : MonoBehaviour {
         {
             return;
         }
+    }
+
+    public IEnumerator DisableCollisionTemporarilyOnSpawn()
+    {
+        Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>());
+        yield return new WaitForSeconds(2);
+        Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>(), false);
     }
 }

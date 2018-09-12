@@ -79,7 +79,7 @@ public class Enemy : MonoBehaviour {
             enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
             if (followPlayer && Manager.instance.player != null)
             {
-                if ((Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance))
+                if (Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance)
                 {
                     // Move towards the player while keeping distance from other enemies
                     float closestEnemy = 10.0f;
@@ -92,7 +92,7 @@ public class Enemy : MonoBehaviour {
                             closestEnemyObject = enemy;
                         }
                     }
-                    if ((closestEnemy <= distanceBetweenEnemies))
+                    if ((closestEnemy <= distanceBetweenEnemies) && (Vector3.Distance(closestPlayer.transform.position, transform.position) > 3.0))
                     {
                         Vector3 dir = (transform.position - closestEnemyObject.transform.position).normalized;
                         transform.position += dir * speed * Time.deltaTime;
@@ -139,19 +139,17 @@ public class Enemy : MonoBehaviour {
     }
 
     public void Death()
-    {   if (!gameObject.name.Contains("Mine"))
+    { 
+        float dropChance = Random.Range(0, 1.0f);
+        // Chance to drop a health pack
+        if (dropChance < chanceToDropHealth)
         {
-            float dropChance = Random.Range(0, 1.0f);
-            // Chance to drop a health pack
-            if (dropChance < chanceToDropHealth)
-            {
-                Instantiate(healthPickup, transform.position, transform.rotation);
-            }
-            // chance to drop an energy pack
-            else if (dropChance < chanceToDropEnergy)
-            {
-                Instantiate(energyPickup, transform.position, transform.rotation);
-            }
+            Instantiate(healthPickup, transform.position, transform.rotation);
+        }
+        // chance to drop an energy pack
+        else if (dropChance < chanceToDropEnergy)
+        {
+            Instantiate(energyPickup, transform.position, transform.rotation);
         }
         if (gameObject.name.Contains("Mine"))
         {
@@ -194,9 +192,16 @@ public class Enemy : MonoBehaviour {
         {
             List<GameObject> tempDebrisList = debrisList;
             GameObject debris = tempDebrisList[0];
-            for (int i = 0; i <= numOfDebris; i++)
+            for (int i = 0; i < numOfDebris; i++)
             {
-                debris = tempDebrisList[Random.Range(0, tempDebrisList.Count - 1)];
+                if (tempDebrisList.Count == 0)
+                {
+                    debris = debrisList[0];
+                }
+                else
+                {
+                    debris = tempDebrisList[Random.Range(0, tempDebrisList.Count)];
+                }
                 if (debris != null)
                 {
                     Instantiate(debris, transform.position, transform.rotation);

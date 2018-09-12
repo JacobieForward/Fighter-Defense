@@ -25,6 +25,8 @@ public class Player : MonoBehaviour {
     private int mineCost;
 
     private bool afterburner;
+    private ParticleSystem afterburnerParticles;
+    private AudioSource afterburnerSound;
 
     public List<GameObject> debrisList;
 
@@ -40,6 +42,10 @@ public class Player : MonoBehaviour {
         mineCost = 25;
 
         afterburner = false;
+        afterburnerParticles = gameObject.GetComponent<ParticleSystem>();
+        afterburnerParticles.Pause();
+        afterburnerSound = gameObject.GetComponent<AudioSource>();
+        afterburnerSound.Stop();
     }
 
     void FixedUpdate() {
@@ -51,16 +57,7 @@ public class Player : MonoBehaviour {
 
         // The player moves backwards at reduced speed
         if (inputVertical < 0) {
-           inputVertical = 0;
-        }
-        if (!afterburner)
-        {
-            transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
-            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
-        } else
-        {
-            transform.position += transform.up * inputVertical * Time.deltaTime * (thrustSpeed * 2);
-            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * (turnSpeed / 2));
+           inputVertical /= 2;
         }
         
         if (energy < maxEnergy) {
@@ -80,10 +77,20 @@ public class Player : MonoBehaviour {
         }
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
-            afterburner = true;
+            transform.position += transform.up * inputVertical * Time.deltaTime * (thrustSpeed * 2);
+            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * (turnSpeed / 2));
+            afterburnerParticles.Play();
+            if (!afterburnerSound.isPlaying)
+            {
+                afterburnerSound.Play();
+            }
+
         } else
         {
-            afterburner = false;
+            transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
+            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+            afterburnerParticles.Stop();
+            afterburnerSound.Stop();
         }
 
         if (Input.GetKeyUp("t")) {
@@ -113,7 +120,8 @@ public class Player : MonoBehaviour {
             if (Manager.instance.CheckPoints(turretCost))
             {
                 GameObject turretInstance = Instantiate(turret, transform.position, transform.rotation);
-                turretCost += 10;
+                //turretCost += 10;
+                StartCoroutine(turretInstance.GetComponent<Ally>().DisableCollisionTemporarilyOnSpawn());
             } else
             {
                 //play "Not enough resources" sound
