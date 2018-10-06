@@ -9,6 +9,8 @@ public class Station : MonoBehaviour
     private float alertTimer;
     private float alertTime;
 
+    public List<GameObject> debrisList;
+
     AudioSource audioSource;
 
     private void Start()
@@ -40,8 +42,17 @@ public class Station : MonoBehaviour
         }
     }
 
+    public void SpawnDebris(int num)
+    {
+        for (int i = 0; i < num; i++)
+        {
+            Instantiate(debrisList[Random.Range(0, debrisList.Count - 1)], transform.position, Quaternion.identity);
+        }
+    }
+
     private void Update()
     {
         alertTimer += Time.deltaTime;
+        transform.Rotate(transform.forward * Time.deltaTime * 3);
     }
 }

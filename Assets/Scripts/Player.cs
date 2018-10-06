@@ -24,11 +24,18 @@ public class Player : MonoBehaviour {
     private int turretCost;
     private int mineCost;
 
-    private bool afterburner;
     private ParticleSystem afterburnerParticles;
+    private AudioSource[] audioSources;
     private AudioSource afterburnerSound;
+    private AudioSource needmorepointsSound;
 
     public List<GameObject> debrisList;
+
+    private void Awake()
+    {
+        afterburnerParticles = gameObject.GetComponent<ParticleSystem>();
+        afterburnerParticles.Pause();
+    }
 
     private void Start()
     {
@@ -40,15 +47,16 @@ public class Player : MonoBehaviour {
         energyTimer = 0.0f;
         turretCost = 100;
         mineCost = 25;
-
-        afterburner = false;
-        afterburnerParticles = gameObject.GetComponent<ParticleSystem>();
-        afterburnerParticles.Pause();
-        afterburnerSound = gameObject.GetComponent<AudioSource>();
+        
+        audioSources = gameObject.GetComponents<AudioSource>();
+        afterburnerSound = audioSources[0];
+        needmorepointsSound = audioSources[1];
         afterburnerSound.Stop();
+        needmorepointsSound.Stop();
     }
 
-    void FixedUpdate() {
+    private void FixedUpdate()
+    {
         float inputHorizontal = Input.GetAxis("Horizontal");
         float inputVertical = Input.GetAxis("Vertical");
 
@@ -56,9 +64,38 @@ public class Player : MonoBehaviour {
         turnSpeed = 180;
 
         // The player moves backwards at reduced speed
-        if (inputVertical < 0) {
-           inputVertical /= 2;
+        if (inputVertical < 0)
+        {
+            inputVertical /= 2;
         }
+
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            transform.position += transform.up * inputVertical * Time.deltaTime * (thrustSpeed * 2);
+            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * (turnSpeed / 2));
+            afterburnerParticles.Play();
+            if (!afterburnerSound.isPlaying)
+            {
+                afterburnerSound.Play();
+            }
+
+        }
+        else
+        {
+            transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
+            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+            afterburnerParticles.Stop();
+            afterburnerSound.Stop();
+        }
+    }
+
+    void Update() {
+        if (health <= 0)
+        {
+            Death();
+        }
+
+
         
         if (energy < maxEnergy) {
             energyTimer += Time.deltaTime;
@@ -75,33 +112,16 @@ public class Player : MonoBehaviour {
             energy -= 1;
             shootTimer = 0.0f;
         }
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-        {
-            transform.position += transform.up * inputVertical * Time.deltaTime * (thrustSpeed * 2);
-            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * (turnSpeed / 2));
-            afterburnerParticles.Play();
-            if (!afterburnerSound.isPlaying)
-            {
-                afterburnerSound.Play();
-            }
-
-        } else
-        {
-            transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
-            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
-            afterburnerParticles.Stop();
-            afterburnerSound.Stop();
-        }
 
         if (Input.GetKeyUp("t")) {
             //Spawn a mine
             if (Manager.instance.CheckPoints(mineCost))
             {
-                GameObject mineInstance = Instantiate(mine, transform.position, transform.rotation);
+                Instantiate(mine, transform.position, transform.rotation);
             }
             else
             {
-                //play "Not enough resources" sound
+                needmorepointsSound.Play();
             }
         }
 
@@ -120,17 +140,11 @@ public class Player : MonoBehaviour {
             if (Manager.instance.CheckPoints(turretCost))
             {
                 GameObject turretInstance = Instantiate(turret, transform.position, transform.rotation);
-                //turretCost += 10;
-                StartCoroutine(turretInstance.GetComponent<Ally>().DisableCollisionTemporarilyOnSpawn());
             } else
             {
-                //play "Not enough resources" sound
+                needmorepointsSound.Play();
             }
 
-        }
-
-        if (health <= 0) {
-            Death();
         }
     }
 
@@ -179,12 +193,17 @@ public class Player : MonoBehaviour {
         return health;
     }
 
+    public void SetHealth(int value)
+    {
+        health = value;
+    }
+
     public int GetEnergy()
     {
         return energy;
     }
 
-    // Straight copy pasted from the Enemy script. An issue of not using inheritance at all in this project
+    // Straight copy pasted from the Player script. An issue of not using inheritance at all in this project
     void SpawnDebris()
     {
         if (debrisList.Count != 0)

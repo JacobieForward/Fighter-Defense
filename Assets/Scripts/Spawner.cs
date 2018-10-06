@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Spawner : MonoBehaviour {
 
@@ -22,6 +23,7 @@ public class Spawner : MonoBehaviour {
 
     private int numEnemiesThisRound;
     private int maxEnemiesActiveThisRound;
+    private float defaultSpawnRate;
     private float spawnRate;
 
     private int enemiesSpawnedThisRound;
@@ -31,25 +33,8 @@ public class Spawner : MonoBehaviour {
     private int maxPlayTimeModifier;
     private float playTimeModifier;
 
-    // A flip round is a round in which the player is hard pressed to survive, difficulty is modified
-    // When a flip round occurs to give the player a chance to bounce back
-
-    /*private int numToSpawn;
-    private float numToSpawnTimer;
-
-    private float roundEndTime;
-    private float roundEndTimer;
-    private float minRoundTime;
-    private float maxRoundTime;
-    
-    public float respawnRate;
-    public float numToSpawnIncreaseRate;
-    private int maxEnemies;
-    private GameObject[] enemies;*/
-
     void Start()
     {
-
         currentEnemyToSpawn = mine; // Mine is a placeholder here in order to prevent nullpointers
         roundNumber = 1;
         spawnRadius = 200;
@@ -65,24 +50,13 @@ public class Spawner : MonoBehaviour {
         // Variables that determine difficulty
         numEnemiesThisRound = 20;
         maxEnemiesActiveThisRound = 50;
-        spawnRate = 1.5f;
+        defaultSpawnRate = 1.2f;
+        spawnRate = 1.2f;
 
         enemiesSpawnedThisRound = 0;
         spawnTimer = 0.0f;
         maxNumSpawnTogether = 2;
         newRound = false;
-        /* OLD VARS
-        minRoundTime = 20.0f;
-        maxRoundTime = 40.0f;
-
-        maxEnemies = 50;
-
-        roundEndTime = Random.Range(minRoundTime, maxRoundTime);
-        numToSpawn = 1;
-        numToSpawnTimer = 0.0f;
-        spawnTimer = respawnRate;
-        roundEndTimer = 0.0f;
-        */
     }
 
     void Update()
@@ -97,23 +71,6 @@ public class Spawner : MonoBehaviour {
         {
             NewRound();
         }
-        /*if (Manager.instance.tutorial)
-        {
-            return;
-        }
-        enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        if (roundEndTimer <= roundEndTime)
-        {
-            SpawnEnemies();
-        } else {
-            if (enemies.Length <= 1)
-            {
-                roundNumber += 1;
-                roundEndTimer = 0.0f;
-                roundEndTime = Random.Range(minRoundTime, maxRoundTime);
-                Debug.Log(roundNumber);
-            }
-        }*/
     }
 
 
@@ -139,11 +96,13 @@ public class Spawner : MonoBehaviour {
         playTime = Manager.instance.GetPlayTime();
 
         // Decide if it is a flip round or not
+        // A flip round is a round in which the player is hard pressed to survive, difficulty is modified
+        // When a flip round occurs to give the player a chance to bounce back
         if (numAllies <= 10 && playTime > 200 && roundNumber > 2 &&
             (Manager.instance.GetAlliesDestroyedThisRound() + (numPlayerDeaths * 2) + (Manager.instance.GetStationHealthLostThisRound() * 2)) >= (playTime / 25))
         {
             Debug.Log("FLIP ROUND: " + roundNumber);
-            playTimeModifier += (playTime / 1.5f);
+            playTimeModifier += (playTime / 1.15f);
         }
         // After playtimemodifier may or may not be changed subtract it from playTime;
         playTime -= playTimeModifier;
@@ -154,7 +113,6 @@ public class Spawner : MonoBehaviour {
         CleanupRoundInformation();
     }
 
-
     void CleanupRoundInformation()
     {
         Manager.instance.ResetAlliesDestroyedCounter();
@@ -164,11 +122,16 @@ public class Spawner : MonoBehaviour {
     void SetDifficulty()
     {
         numEnemiesThisRound = baseEnemyNum + (int)(playTime / 3) + numAllies - (numPlayerDeaths * 3);
-        spawnRate = 1.5f - (playTime / 2500) - (float)(numAllies * 0.007) + (float)(numPlayerDeaths * 0.02);
+        spawnRate = defaultSpawnRate - (playTime / 2500) - (float)(numAllies * 0.008) + (float)(numPlayerDeaths * 0.02);
         maxNumSpawnTogether = (numEnemiesThisRound / 30);
         if (maxNumSpawnTogether < 1)
         {
             maxNumSpawnTogether = 2;
+        }
+        if (SceneManager.GetActiveScene().name.Equals("MapTwo"))
+        {
+            numEnemiesThisRound *= 1.6;
+            spawnRate /= 1.6;
         }
         Debug.Log("numEnemiesThisRound: " + numEnemiesThisRound);
         Debug.Log("spawnRate: " + spawnRate);
@@ -181,7 +144,9 @@ public class Spawner : MonoBehaviour {
         for (int i = 0; i < Random.Range(1, maxNumSpawnTogether); i++)
         {
             RandomizeSpawnPosition();
-            ChooseEnemyToSpawn();
+            if (!SceneManager.GetActiveScene().name.Equals("MapTwo")) {
+                ChooseEnemyToSpawn();
+            }
             InstantiateEnemy();
             enemiesSpawnedThisRound += 1;
         }
@@ -222,53 +187,4 @@ public class Spawner : MonoBehaviour {
     {
         Instantiate(currentEnemyToSpawn, currentSpawnPosition, Quaternion.identity);
     }
-
-    /* void SpawnEnemies()
-     {
-         // Spawn enemy every respawnRate seconds
-         spawnTimer += Time.deltaTime;
-         numToSpawnTimer += Time.deltaTime;
-         roundEndTimer += Time.deltaTime;
-         if ((numToSpawnTimer >= numToSpawnIncreaseRate) && numToSpawn < 4)
-         {
-             Debug.Log("NumToSpawn increased.");
-             numToSpawn++;
-             numToSpawnTimer = 0.0f;
-         }
-         if ((spawnTimer >= respawnRate) && ((enemies.Length - GameObject.FindGameObjectsWithTag("Player").Length) < maxEnemies))
-         {
-             float angle = Random.Range(0, 360);
-             //x = x0 + r * cos(theta)
-             //y = y0 + r * sin(theta)
-             float x = 0 + radius * Mathf.Cos(angle * Mathf.PI / 180);
-             float y = 0 + radius * Mathf.Sin(angle * Mathf.PI / 180);
-             for (int i = 0; i < numToSpawn; i++)
-             {
-                 currentSpawnPosition = new Vector3(x + Random.Range(0, 10), y + Random.Range(0, 10), 1); // Leave a little randomness in spawn position so enemies dont spawn on top of each other
-                 if (numToSpawn > 3 && Random.Range(0, 100) > 80)
-                 {
-
-                 }
-                 else
-                 {
-                     float spawnChance = Random.Range(0.0f, 1f);
-                     if (spawnChance < .25f && roundNumber >= 2)
-                     {
-                         currentEnemyToSpawn = turret;
-                     }
-                     if (spawnChance < .10f && roundNumber >= 3)
-                     {
-                         currentEnemyToSpawn = enemyFighter;
-                     }
-                     Instantiate(currentEnemyToSpawn, currentSpawnPosition, Quaternion.identity);
-                 }
-                 currentEnemyToSpawn = mine;
-             }
-             spawnTimer = 0.0f;
-             if (respawnRate > 1.5f)
-             {
-                 respawnRate -= 0.01f;
-             }
-         }
-     }*/
 }

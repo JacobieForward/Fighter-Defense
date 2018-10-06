@@ -18,7 +18,7 @@ public class Debris : MonoBehaviour {
     }
 
     void OnCollisionEnter2D(Collision2D other) {
-        if (other.gameObject.tag == "Projectile" || other.gameObject.tag == "Enemy Projectile" || other.gameObject.tag == "TurretProjectile") {
+        if ((other.gameObject.tag == "Projectile" || other.gameObject.tag == "Enemy Projectile" || other.gameObject.tag == "TurretProjectile") && !gameObject.name.Contains("Station")) {
             Destroy(other.gameObject);
             Destroy(gameObject);
         }

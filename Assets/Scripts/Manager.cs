@@ -68,8 +68,11 @@ public class Manager : MonoBehaviour {
     private int alliesDestroyedThisRound;
     private int stationHealthLostThisRound;
 
-    private AudioSource audioSource;
     public Toggle muteToggle;
+
+    private bool gameOver;
+    private bool coroutineRunning;
+    private AudioSource[] audioSources;
     
 
     void Awake () {
@@ -84,6 +87,8 @@ public class Manager : MonoBehaviour {
 
     void Start(){
         muteToggle = GameObject.Find("MuteToggle").GetComponent<Toggle>();
+        gameOver = false;
+        coroutineRunning = false;
         playtime = 0.0f;
         playerDeaths = 0;
         respawnTimer = 0.0f;
@@ -108,6 +113,10 @@ public class Manager : MonoBehaviour {
         healthSlider = GameObject.Find("HealthSlider").GetComponent<Slider>();
         energySlider = GameObject.Find("EnergySlider").GetComponent<Slider>();
         stationHealthSlider = GameObject.Find("StationHealthSlider").GetComponent<Slider>();
+        if (SceneManager.GetActiveScene().name.Equals("MapThree"))
+        {
+            stationHealthSlider.gameObject.SetActive(false);
+        }
         flashPanel = GameObject.Find("FlashPanel").GetComponent<Graphic>();
         flashActive = false;
         cameraOffset = new Vector3(0, 0, -2);
@@ -127,7 +136,7 @@ public class Manager : MonoBehaviour {
         points = 0;
         selfDestructText = GameObject.Find("TooFarText");
         selfDestructText.SetActive(false);
-        audioSource = GetComponent<AudioSource>();
+        audioSources = gameObject.GetComponents<AudioSource>();
 
         tooFarTimer = 0.0f;
         tooFarSeconds = 5f;
@@ -141,6 +150,17 @@ public class Manager : MonoBehaviour {
         tutorialCanvas.SetActive(false);
         tutorialCanvas.SetActive(true);
         Time.timeScale = 0;
+
+        Application.targetFrameRate = 100;
+
+        if (SceneManager.GetActiveScene().name != "MapThree")
+        {
+            // Instantiate starting turrets after all variables are set
+            Instantiate(Manager.instance.playerScript.turret, new Vector3(-20, -20, 1), Quaternion.identity);
+            Instantiate(Manager.instance.playerScript.turret, new Vector3(20, -20, 1), Quaternion.identity);
+            Instantiate(Manager.instance.playerScript.turret, new Vector3(-20, 20, 1), Quaternion.identity);
+            Instantiate(Manager.instance.playerScript.turret, new Vector3(20, 20, 1), Quaternion.identity);
+        }
     }
 
     void Update() {
@@ -152,15 +172,15 @@ public class Manager : MonoBehaviour {
 
         if (muteToggle.isOn)
         {
-            audioSource.mute = true;
+            AudioListener.volume = 0;
         } else
         {
-            audioSource.mute = false;
+            AudioListener.volume = 1;
         }
 
         if (tutorial)
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown("p"))
             {
                 tutorial = false;
                 tutorialCanvas.SetActive(false);
@@ -170,39 +190,46 @@ public class Manager : MonoBehaviour {
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown("p"))
         {
             tutorial = !tutorial;
             tutorialCanvas.SetActive(true);
             Time.timeScale = 0;
         }
-        playtime += Time.deltaTime;
-        
+        if (player != null && !gameOver)
+        {
+            playtime += Time.deltaTime;
+            pointTimer += Time.deltaTime;
+        }
+
+        // Checks for loss condition
+        if (SceneManager.GetActiveScene().name.Equals("MapThree") && playerScript.GetHealth() <= 0 && !gameOver)
+        {
+            GameOver();
+        }
+        else if (station.health <= 0 && !gameOver)
+        {
+            GameOver();
+        }
+
         // This handles respawn behavior
-        if (player != null)
+        if (player != null && !gameOver)
         {
             // Camera follows the player
             Camera.main.transform.position = player.transform.position + cameraOffset;
             // Spawn stars in player's path
             SpawnStars();
         }
-        else
+        else if (!SceneManager.GetActiveScene().name.Equals("MapThree") && !gameOver)
         {
             // If player is == null then the player has been destroyed and the respawning process activates
             respawningText.SetActive(true);
             PlayerRespawn();
         }
-        pointTimer += Time.deltaTime;
         if (pointTimer >= pointTime)
         {
             points += 1;
             pointTimer = 0.0f;
-        }
-
-        // Checks for loss condition
-        if (station.health <= 0)
-        {
-            GameOver();
         }
 
         // While this ties directly into ScreenFlashRed it is seperated in code which is terrible for readability
@@ -216,7 +243,6 @@ public class Manager : MonoBehaviour {
                 flashActive = false;
             }
         }
-
         CheckForSelfDestruct();
     }
 
@@ -252,12 +278,21 @@ public class Manager : MonoBehaviour {
 
     void GameOver()
     {
+        audioSources[0].Stop();
+        gameOver = true;
         gameOverText.text = "GAME OVER. You survived for " + playtime + "seconds.";
         mineKillCountText.text = mineKillCount.ToString();
         turretKillCountText.text = turretKillCount.ToString();
         fighterKillCountText.text = fighterKillCount.ToString();
-        gameOverCanvas.SetActive(true);
-        Time.timeScale = 0;
+        pointsText.gameObject.SetActive(false);
+        if (!SceneManager.GetActiveScene().name.Equals("MapThree"))
+        {
+            Camera.main.transform.position = new Vector3(station.transform.position.x, station.transform.position.y, -1);
+            StartCoroutine(GameOverSequence());
+        } else
+        {
+            gameOverCanvas.SetActive(true);
+        }
     }
 
     void SpawnStars()
@@ -314,9 +349,9 @@ public class Manager : MonoBehaviour {
 
     void InitialStars()
     {
-        if (starList.Count <= starLimit + 1)
+        if (starList.Count <= starLimit / 2)
         {
-            for (int i = 0; i < starLimit + 1; i++)
+            for (int i = 0; i < starLimit / 2; i++)
             {
                 Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
                 CreateStar(screenPosition);
@@ -366,7 +401,7 @@ public class Manager : MonoBehaviour {
             if (tooFarTimer > tooFarSeconds)
             {
                 selfDestructText.SetActive(false);
-                playerScript.Death();
+                playerScript.SetHealth(0);
             }
         }
         else
@@ -439,5 +474,15 @@ public class Manager : MonoBehaviour {
         stationHealthLostThisRound = 0;
     }
 
-    // TODO: Slomo on player death
+    private IEnumerator GameOverSequence()
+    {
+        audioSources[1].Play();
+        yield return new WaitForSeconds(4.5f);
+        audioSources[1].Stop();
+        Instantiate(explosionPrefab, station.transform.position, Quaternion.identity);
+        station.GetComponent<SpriteRenderer>().sprite = null;
+        station.GetComponent<BoxCollider2D>().enabled = false;
+        station.SpawnDebris(10);
+        gameOverCanvas.SetActive(true);
+    }
 }

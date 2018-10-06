@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ally : MonoBehaviour {
+public class Ally : MonoBehaviour
+{
 
     public GameObject projectile;
     public int followDistance;
@@ -12,29 +13,26 @@ public class Ally : MonoBehaviour {
 
     private GameObject[] enemiesNearby;
     private GameObject closestEnemy;
+    private Collider2D collider;
 
     public List<GameObject> debrisList;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         shootTimer = 0.0f;
         shootTime = 3.0f;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
+        collider = GetComponent<Collider2D>();
+        StartCoroutine("CollectLocationData");
+        StartCoroutine("DisableCollisionTemporarilyOnSpawn");
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         shootTimer += Time.deltaTime;
-        if (enemiesNearby.Length != 0)
+        if (closestEnemy != null)
         {
-            closestEnemy = enemiesNearby[0];
-            foreach (GameObject enemy in enemiesNearby)
-            {
-                if (Vector3.Distance(gameObject.transform.position, enemy.transform.position) < Vector3.Distance(gameObject.transform.position, closestEnemy.transform.position))
-                {
-                    closestEnemy = enemy;
-                }
-            }
             Vector3 dir = closestEnemy.transform.position - transform.position;
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
@@ -44,12 +42,37 @@ public class Ally : MonoBehaviour {
                 if (shootTimer >= shootTime)
                 {
                     GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
-                    Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                    Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), collider);
                     if (Manager.instance.player != null)
                     {
                         Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>());
                     }
                     shootTimer = 0.0f;
+                }
+            }
+        }
+    }
+
+    IEnumerator CollectLocationData()
+    {
+        for (; ; )
+        {
+            FindClosestEnemy();
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    void FindClosestEnemy()
+    {
+        enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
+        if (enemiesNearby.Length > 0)
+        {
+            closestEnemy = enemiesNearby[0];
+            foreach (GameObject enemy in enemiesNearby)
+            {
+                if (Vector3.Distance(gameObject.transform.position, enemy.transform.position) < Vector3.Distance(gameObject.transform.position, closestEnemy.transform.position))
+                {
+                    closestEnemy = enemy;
                 }
             }
         }
@@ -73,8 +96,9 @@ public class Ally : MonoBehaviour {
 
     void Death()
     {
+        StopAllCoroutines();
         SpawnDebris(Random.Range(0, debrisList.Count));
-        if (!gameObject.name.Contains("mine "))
+        if (!gameObject.name.Contains("mine"))
         {
             Manager.instance.IncrementAllyDestroyedCounter();
         }
@@ -107,7 +131,7 @@ public class Ally : MonoBehaviour {
     public IEnumerator DisableCollisionTemporarilyOnSpawn()
     {
         Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>());
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(2f);
         Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>(), false);
     }
 }

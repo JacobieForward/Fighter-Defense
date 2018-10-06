@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Enemy : MonoBehaviour {
     // This encompases all enemies with variables checked the specify what kind of enemy
@@ -28,6 +29,8 @@ public class Enemy : MonoBehaviour {
 
     private GameObject[] playersNearby;
     private GameObject closestPlayer;
+    private float closestEnemy;
+    private GameObject closestEnemyObject;
 
     public List<GameObject> debrisList;
 
@@ -36,9 +39,10 @@ public class Enemy : MonoBehaviour {
         shootTimer = 0.0f;
         shootTime = Random.Range(2.0f, 3.0f);
         chanceToDropEnergy = 0.15f;
-        chanceToDropHealth = 0.07f;
-        distanceBetweenEnemies = 5.0f;
+        chanceToDropHealth = 0.03f;
+        distanceBetweenEnemies = 4.0f;
         station = GameObject.Find("TheStation");
+        StartCoroutine("CollectLocationData");
     }
 
     void OnCollisionEnter2D(Collision2D other) {
@@ -63,36 +67,22 @@ public class Enemy : MonoBehaviour {
         }
     }
 
-    void Update() {
-        playersNearby = GameObject.FindGameObjectsWithTag("Player");
-        if (playersNearby.Length != 0)
+    private void FixedUpdate()
+    {
+        if (Manager.instance.player == null)
         {
-            closestPlayer = playersNearby[0];
-            foreach (GameObject player in playersNearby)
-            {
-                if (Vector3.Distance(gameObject.transform.position, player.transform.position) < Vector3.Distance(gameObject.transform.position, closestPlayer.transform.position))
-                {
-                    closestPlayer = player;
-                }
-            }
+            MoveToStation();
+        }
+        if (closestPlayer != null)
+        {
             RotateToTClosestPlayer();
-            enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
             if (followPlayer && Manager.instance.player != null)
             {
                 if (Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance)
                 {
-                    // Move towards the player while keeping distance from other enemies
-                    float closestEnemy = 10.0f;
-                    GameObject closestEnemyObject = null;
-                    foreach (GameObject enemy in enemiesNearby)
-                    {
-                        if ((Vector3.Distance(enemy.transform.position, transform.position) < closestEnemy) && (enemy != this.gameObject))
-                        {
-                            closestEnemy = Vector3.Distance(transform.position, enemy.transform.position);
-                            closestEnemyObject = enemy;
-                        }
-                    }
-                    if ((closestEnemy <= distanceBetweenEnemies) && (Vector3.Distance(closestPlayer.transform.position, transform.position) > 3.0))
+                    if ((closestEnemy <= distanceBetweenEnemies) && (Vector3.Distance(closestPlayer.transform.position, transform.position) > 5.0) &&
+                        closestEnemyObject != null && !(Camera.main.WorldToScreenPoint(transform.position).x > Camera.main.pixelWidth) && !(Camera.main.WorldToScreenPoint(transform.position).x < 0)
+                        && !(Camera.main.WorldToScreenPoint(transform.position).y < Camera.main.pixelHeight) && !(Camera.main.WorldToScreenPoint(transform.position).y > 0))
                     {
                         Vector3 dir = (transform.position - closestEnemyObject.transform.position).normalized;
                         transform.position += dir * speed * Time.deltaTime;
@@ -128,13 +118,58 @@ public class Enemy : MonoBehaviour {
         {
             MoveToStation();
         }
-        if (Manager.instance.player != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) > followDistance))
+        if (Manager.instance.player != null && closestPlayer != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) > followDistance))
         {
             MoveToStation();
         }
-        if (Manager.instance.player == null)
+    }
+
+    void Update() {
+        
+    }
+
+    IEnumerator CollectLocationData()
+    {
+        for (; ; )
         {
-            MoveToStation();
+            FindClosestPlayer();
+            FindClosestEnemy();
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    void FindClosestPlayer()
+    {
+        playersNearby = GameObject.FindGameObjectsWithTag("Player");
+        if (playersNearby.Length > 0)
+        {
+            closestPlayer = playersNearby[0];
+            foreach (GameObject player in playersNearby)
+            {
+                if (Vector3.Distance(gameObject.transform.position, player.transform.position) < Vector3.Distance(gameObject.transform.position, closestPlayer.transform.position))
+                {
+                    closestPlayer = player;
+                }
+            }
+        }
+    }
+
+    void FindClosestEnemy()
+    {
+        enemiesNearby = GameObject.FindGameObjectsWithTag("Enemy");
+        // Move towards the player while keeping distance from other enemies
+        closestEnemy = 10.0f;
+        closestEnemyObject = enemiesNearby[0];
+        if (enemiesNearby.Length > 0)
+        {
+            foreach (GameObject enemy in enemiesNearby)
+            {
+                if ((Vector3.Distance(enemy.transform.position, transform.position) < closestEnemy) && (enemy != this.gameObject))
+                {
+                    closestEnemy = Vector3.Distance(transform.position, enemy.transform.position);
+                    closestEnemyObject = enemy;
+                }
+            }
         }
     }
 
@@ -169,13 +204,19 @@ public class Enemy : MonoBehaviour {
         {
             explosionInstance.GetComponent<AudioSource>().mute = true;
         }
+        StopAllCoroutines();
         SpawnDebris(Random.Range(1, debrisList.Count));
         Destroy(gameObject);
     }
 
     void MoveToStation()
     {
-        transform.position = Vector3.MoveTowards(transform.position, station.transform.position, (speed / 1.5f) * Time.deltaTime);
+        if (SceneManager.GetActiveScene().name.Equals("MapThree") && Manager.instance.player != null)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, Manager.instance.player.transform.position, speed * Time.deltaTime);
+        } else {
+            transform.position = Vector3.MoveTowards(transform.position, station.transform.position, (speed / 1.5f) * Time.deltaTime);
+        }
     }
 
     void RotateToTClosestPlayer()
