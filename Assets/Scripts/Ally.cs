@@ -13,7 +13,7 @@ public class Ally : MonoBehaviour
 
     private GameObject[] enemiesNearby;
     private GameObject closestEnemy;
-    private Collider2D collider;
+    private new Collider2D collider;
 
     public List<GameObject> debrisList;
 
@@ -132,6 +132,9 @@ public class Ally : MonoBehaviour
     {
         Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>());
         yield return new WaitForSeconds(2f);
-        Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>(), false);
+        if (Manager.instance.player != null)
+        {
+            Physics2D.IgnoreCollision(gameObject.GetComponent<Collider2D>(), Manager.instance.player.gameObject.GetComponent<Collider2D>(), false);
+        }
     }
 }

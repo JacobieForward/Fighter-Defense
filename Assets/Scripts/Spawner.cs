@@ -130,8 +130,8 @@ public class Spawner : MonoBehaviour {
         }
         if (SceneManager.GetActiveScene().name.Equals("MapTwo"))
         {
-            numEnemiesThisRound *= 1.6;
-            spawnRate /= 1.6;
+            numEnemiesThisRound *= 2;
+            spawnRate /= 1.6f;
         }
         Debug.Log("numEnemiesThisRound: " + numEnemiesThisRound);
         Debug.Log("spawnRate: " + spawnRate);

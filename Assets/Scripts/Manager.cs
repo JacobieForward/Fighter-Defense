@@ -70,8 +70,7 @@ public class Manager : MonoBehaviour {
 
     public Toggle muteToggle;
 
-    private bool gameOver;
-    private bool coroutineRunning;
+    public bool gameOver;
     private AudioSource[] audioSources;
     
 
@@ -88,7 +87,6 @@ public class Manager : MonoBehaviour {
     void Start(){
         muteToggle = GameObject.Find("MuteToggle").GetComponent<Toggle>();
         gameOver = false;
-        coroutineRunning = false;
         playtime = 0.0f;
         playerDeaths = 0;
         respawnTimer = 0.0f;
@@ -258,8 +256,8 @@ public class Manager : MonoBehaviour {
             respawnTimer = 0.0f;
             Instantiate(explosionPrefab, station.transform.position, Quaternion.identity);
             respawningText.SetActive(false);
-            Camera.main.transform.position = station.gameObject.transform.position;
-            InitialStars();
+            Camera.main.transform.position = player.gameObject.transform.position;
+            InitialStarsWithoutStarCountCheck();
             pointsToRespawn += 25;
         }
         else
@@ -347,6 +345,7 @@ public class Manager : MonoBehaviour {
         return false;
     }
 
+    // Fills a screen with stars at random points, checks for the amount of stars to avoid spawning too many
     void InitialStars()
     {
         if (starList.Count <= starLimit / 2)
@@ -356,6 +355,16 @@ public class Manager : MonoBehaviour {
                 Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
                 CreateStar(screenPosition);
             }
+        }
+    }
+
+    // Same as initial stars but does not check for the amount of stars before spawning, use sparingly to prevent too many stars spawning
+    void InitialStarsWithoutStarCountCheck()
+    {
+        for (int i = 0; i < starLimit / 2; i++)
+        {
+            Vector3 screenPosition = Camera.main.ScreenToWorldPoint(new Vector3(Random.Range(0, Screen.width), Random.Range(0, Screen.height), 1));
+            CreateStar(screenPosition);
         }
     }
 

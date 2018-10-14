@@ -39,8 +39,15 @@ public class Enemy : MonoBehaviour {
         shootTimer = 0.0f;
         shootTime = Random.Range(2.0f, 3.0f);
         chanceToDropEnergy = 0.15f;
-        chanceToDropHealth = 0.03f;
-        distanceBetweenEnemies = 4.0f;
+        if (SceneManager.GetActiveScene().name == "MapThree")
+        {
+            chanceToDropHealth = 0.06f;
+        } else
+        {
+            chanceToDropHealth = 0.03f;
+        }
+        
+        distanceBetweenEnemies = 5.0f;
         station = GameObject.Find("TheStation");
         StartCoroutine("CollectLocationData");
     }
@@ -69,32 +76,26 @@ public class Enemy : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        if (Manager.instance.player == null)
-        {
-            MoveToStation();
-        }
         if (closestPlayer != null)
         {
             RotateToTClosestPlayer();
-            if (followPlayer && Manager.instance.player != null)
+            if (followPlayer)
             {
                 if (Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance)
                 {
-                    if ((closestEnemy <= distanceBetweenEnemies) && (Vector3.Distance(closestPlayer.transform.position, transform.position) > 5.0) &&
-                        closestEnemyObject != null && !(Camera.main.WorldToScreenPoint(transform.position).x > Camera.main.pixelWidth) && !(Camera.main.WorldToScreenPoint(transform.position).x < 0)
-                        && !(Camera.main.WorldToScreenPoint(transform.position).y < Camera.main.pixelHeight) && !(Camera.main.WorldToScreenPoint(transform.position).y > 0))
+                    /*if ((closestEnemy <= distanceBetweenEnemies) && (Vector3.Distance(closestPlayer.transform.position, transform.position) > 4.0) && closestEnemyObject != null)
                     {
                         Vector3 dir = (transform.position - closestEnemyObject.transform.position).normalized;
                         transform.position += dir * speed * Time.deltaTime;
-                    }
-                    else
-                    {
-                        transform.position = Vector3.MoveTowards(transform.position, closestPlayer.transform.position, speed * Time.deltaTime);
-                    }
+                    }*/
+                    //else
+                    //{
+                     transform.position = Vector3.MoveTowards(transform.position, closestPlayer.transform.position, speed * Time.deltaTime);
+                    //}
                 }
             }
 
-            if (projectile != null && Manager.instance.player != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance))
+            if (projectile != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) < followDistance))
             {
                 RotateToTClosestPlayer();
                 shootTimer += Time.deltaTime;
@@ -118,7 +119,7 @@ public class Enemy : MonoBehaviour {
         {
             MoveToStation();
         }
-        if (Manager.instance.player != null && closestPlayer != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) > followDistance))
+        if (closestPlayer != null && (Vector3.Distance(closestPlayer.transform.position, transform.position) > followDistance))
         {
             MoveToStation();
         }

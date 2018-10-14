@@ -68,24 +68,26 @@ public class Player : MonoBehaviour {
         {
             inputVertical /= 2;
         }
-
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        if (!Manager.instance.gameOver)
         {
-            transform.position += transform.up * inputVertical * Time.deltaTime * (thrustSpeed * 2);
-            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * (turnSpeed / 2));
-            afterburnerParticles.Play();
-            if (!afterburnerSound.isPlaying)
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
-                afterburnerSound.Play();
-            }
+                transform.position += transform.up * inputVertical * Time.deltaTime * (thrustSpeed * 2);
+                transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * (turnSpeed / 2));
+                afterburnerParticles.Play();
+                if (!afterburnerSound.isPlaying)
+                {
+                    afterburnerSound.Play();
+                }
 
-        }
-        else
-        {
-            transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
-            transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
-            afterburnerParticles.Stop();
-            afterburnerSound.Stop();
+            }
+            else
+            {
+                transform.position += transform.up * inputVertical * Time.deltaTime * thrustSpeed;
+                transform.Rotate(new Vector3(0.0f, 0.0f, -inputHorizontal) * Time.deltaTime * turnSpeed);
+                afterburnerParticles.Stop();
+                afterburnerSound.Stop();
+            }
         }
     }
 
@@ -94,8 +96,6 @@ public class Player : MonoBehaviour {
         {
             Death();
         }
-
-
         
         if (energy < maxEnergy) {
             energyTimer += Time.deltaTime;
@@ -105,46 +105,51 @@ public class Player : MonoBehaviour {
             }
         }
         shootTimer += Time.deltaTime;
-        if (Input.GetKey("space") && energy > 0 && shootTimer >= roundsPerSecond) {
-            //Fire the player's primary weapon
-            GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
-            Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-            energy -= 1;
-            shootTimer = 0.0f;
-        }
-
-        if (Input.GetKeyUp("t")) {
-            //Spawn a mine
-            if (Manager.instance.CheckPoints(mineCost))
-            {
-                Instantiate(mine, transform.position, transform.rotation);
-            }
-            else
-            {
-                needmorepointsSound.Play();
-            }
-        }
-
-        if (Input.GetKey("return") && energy > 11 && shootTimer >= roundsPerSecond)
+        if (!Manager.instance.gameOver)
         {
-            //Fire the player's secondary weapon
-            GameObject missileInstance = Instantiate(missile, transform.position, transform.rotation);
-            Physics2D.IgnoreCollision(missileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-            energy -= 10;
-            shootTimer = 0.0f;
-        }
-
-        if (Input.GetKeyUp("f"))
-        {
-            //Spawn a turret under the player
-            if (Manager.instance.CheckPoints(turretCost))
+            if (Input.GetKey("space") && energy > 0 && shootTimer >= roundsPerSecond)
             {
-                GameObject turretInstance = Instantiate(turret, transform.position, transform.rotation);
-            } else
-            {
-                needmorepointsSound.Play();
+                //Fire the player's primary weapon
+                GameObject projectileInstance = Instantiate(projectile, transform.position, transform.rotation);
+                Physics2D.IgnoreCollision(projectileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                energy -= 1;
+                shootTimer = 0.0f;
             }
 
+            if (Input.GetKeyUp("t"))
+            {
+                //Spawn a mine
+                if (Manager.instance.CheckPoints(mineCost))
+                {
+                    Instantiate(mine, transform.position, transform.rotation);
+                }
+                else
+                {
+                    needmorepointsSound.Play();
+                }
+            }
+
+            if (Input.GetKey("return") && energy > 11 && shootTimer >= roundsPerSecond)
+            {
+                //Fire the player's secondary weapon
+                GameObject missileInstance = Instantiate(missile, transform.position, transform.rotation);
+                Physics2D.IgnoreCollision(missileInstance.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                energy -= 10;
+                shootTimer = 0.0f;
+            }
+
+            if (Input.GetKeyUp("f"))
+            {
+                //Spawn a turret under the player
+                if (Manager.instance.CheckPoints(turretCost))
+                {
+                    Instantiate(turret, transform.position, transform.rotation);
+                }
+                else
+                {
+                    needmorepointsSound.Play();
+                }
+            }
         }
     }
 
